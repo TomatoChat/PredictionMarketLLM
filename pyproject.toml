@@ -1,0 +1,14 @@
+[project]
+name = "predictionmarketllm"
+version = "0.1.0"
+description = "Let LLMs play on prediction markets"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.6.0",
+    "ruff>=0.15.14",
+    "ty>=0.0.39",
+]
