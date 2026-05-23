@@ -24,6 +24,12 @@ def main(argv: list[str] | None = None) -> bool:
         dest="market_id",
         help="Restrict the run to a single market_id (e.g. mkt_<uuid>). Requires --config.",
     )
+    parser.add_argument(
+        "--dry-run",
+        dest="dry_run",
+        action="store_true",
+        help="Call the provider(s) but do not write llm_prediction rows. Useful for local testing.",
+    )
 
     args = parser.parse_args(argv)
 
@@ -31,9 +37,11 @@ def main(argv: list[str] | None = None) -> bool:
         parser.error("--market-id requires --config")
 
     if args.config_name:
-        return predict_with_config(args.config_name, args.market_id)
+        return predict_with_config(
+            args.config_name, args.market_id, dry_run=args.dry_run
+        )
 
-    return predict_all_configs()
+    return predict_all_configs(dry_run=args.dry_run)
 
 
 if __name__ == "__main__":

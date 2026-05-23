@@ -82,13 +82,19 @@ class PredictorLLM:
             logger.exception("PredictorLLM.seed_canonical_configs - failed")
             return False
 
-    def predict(self, market_id: str, session: Session) -> bool:
+    def predict(
+        self, market_id: str, session: Session, dry_run: bool = False
+    ) -> bool:
         """Run a single LLM prediction call against ``market_id``.
 
         On success, inserts one ``llm_prediction`` row pointing at the outcome
         the model picked and returns True. On any failure (missing market,
         provider exception, model returning a label outside the outcome set)
         logs the reason and returns False without writing a row.
+
+        When ``dry_run`` is True the provider is still called (so you see the
+        real response, token counts, and chosen outcome in logs), but no row
+        is inserted and the session is not committed.
         """
         market = get_market(session, market_id).market
 
@@ -127,6 +133,15 @@ class PredictorLLM:
                 f"PredictorLLM.predict - model returned unknown label {result.result!r} for market={market_id} (known: {list(outcome_id_by_label)})"  # noqa: E501
             )
             return False
+
+        if dry_run:
+            logger.info(
+                f"PredictorLLM.predict - DRY RUN market={market_id} config={self.config.name} "  # noqa: E501
+                f"chose={result.result!r} (outcome_id={chosen_outcome_id}) "
+                f"tokens=in:{result.input_tokens}/out:{result.output_tokens} "
+                f"latency_ms={result.latency_ms} — skipping insert"
+            )
+            return True
 
         insert_llm_predictions(
             session,
