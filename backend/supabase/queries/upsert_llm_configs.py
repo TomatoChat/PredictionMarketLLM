@@ -15,7 +15,10 @@ def upsert_llm_configs(
     """Insert llm_config rows, refreshing every mutable field on conflict (id)."""
     if not rows:
         return UpsertLLMConfigsResponse(count=0)
-    stmt = insert(LLMConfig).values([row.model_dump() for row in rows])
+    values = [
+        {k: v for k, v in row.model_dump().items() if v is not None} for row in rows
+    ]
+    stmt = insert(LLMConfig).values(values)
     stmt = stmt.on_conflict_do_update(
         index_elements=["id"],
         set_={

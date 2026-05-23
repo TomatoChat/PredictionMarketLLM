@@ -49,8 +49,8 @@ class PredictorLLM:
         return [
             LLMConfig(
                 id=f"{LLM_CONFIG_ID_PREFIX}"
-                f"{uuid5(UUID_NAMESPACE, 'llm_config:gpt-5-nano-websearch-minimal')}",
-                name="gpt-5-nano-minimal-websearch",
+                f"{uuid5(UUID_NAMESPACE, 'llm_config:gpt-5-low-websearch')}",
+                name="gpt-5-low-websearch",
                 provider=LLMProviderEnum.OPENAI,
                 model=ModelSnapshot.GPT_5_NANO_2025_08_07.model,
                 model_snapshot=ModelSnapshot.GPT_5_NANO_2025_08_07,
@@ -58,7 +58,7 @@ class PredictorLLM:
                 top_p=None,
                 max_tokens=None,
                 tools=[{"type": "web_search"}],
-                extra={"reasoning": {"effort": "minimal"}},
+                extra={"reasoning": {"effort": "low"}},
                 active=True,
             ),
         ]
@@ -82,9 +82,7 @@ class PredictorLLM:
             logger.exception("PredictorLLM.seed_canonical_configs - failed")
             return False
 
-    def predict(
-        self, market_id: str, session: Session, dry_run: bool = False
-    ) -> bool:
+    def predict(self, market_id: str, session: Session, dry_run: bool = False) -> bool:
         """Run a single LLM prediction call against ``market_id``.
 
         On success, inserts one ``llm_prediction`` row pointing at the outcome
