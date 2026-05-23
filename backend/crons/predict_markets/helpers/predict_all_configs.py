@@ -13,8 +13,11 @@ logger = logging.getLogger(__name__)
 settings = get_settings()
 
 
-def predict_all_configs() -> bool:
-    """Run predictions for every active config across every active market."""
+def predict_all_configs(dry_run: bool = False) -> bool:
+    """Run predictions for every active config across every active market.
+
+    When ``dry_run`` is True, the providers are called but no rows are written.
+    """
     try:
         engine = create_engine(settings.database_url)
 
@@ -25,7 +28,7 @@ def predict_all_configs() -> bool:
             logger.warning("predict_all_configs - no active configs; nothing to do")
             return True
 
-        return all(predict_with_config(name) for name in names)
+        return all(predict_with_config(name, dry_run=dry_run) for name in names)
     except Exception:
         logger.exception("predict_all_configs - failed")
         return False

@@ -11,11 +11,14 @@ from settings import get_settings
 logger = logging.getLogger(__name__)
 
 
-def predict_with_config(config_name: str, market_id: str | None = None) -> bool:
+def predict_with_config(
+    config_name: str, market_id: str | None = None, dry_run: bool = False
+) -> bool:
     """Run predictions for ``config_name``.
 
     If ``market_id`` is given, predict that one market; otherwise iterate over
-    every market with a today-dated active snapshot.
+    every market with a today-dated active snapshot. When ``dry_run`` is True,
+    the provider is called but no rows are written.
     """
     try:
         engine = create_engine(get_settings().database_url)
@@ -43,7 +46,7 @@ def predict_with_config(config_name: str, market_id: str | None = None) -> bool:
             n_failed = 0
 
             for mid in tqdm(market_ids, desc=f"predicting - {config_name}", unit="mkt"):
-                if predictor.predict(mid, session):
+                if predictor.predict(mid, session, dry_run=dry_run):
                     n_ok += 1
                 else:
                     n_failed += 1
