@@ -26,11 +26,8 @@ def get_markets_with_retry(client: ClobClient, cursor: str) -> Any:
             wait = BACKOFF_BASE_SECONDS**attempt
 
             logger.warning(
-                "polymarket - get_markets failed (attempt %d/%d), retrying in %.1fs: %s",
-                attempt,
-                MAX_RETRIES,
-                wait,
-                exc,
+                f"polymarket - get_markets failed (attempt {attempt}/{MAX_RETRIES}), "
+                f"retrying in {wait:.1f}s: {exc}"
             )
             time.sleep(wait)
 
