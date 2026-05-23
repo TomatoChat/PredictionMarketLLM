@@ -27,11 +27,8 @@ def get_markets_with_retry(
             wait = BACKOFF_BASE_SECONDS**attempt
 
             logger.warning(
-                "kalshi - get_markets failed (attempt %d/%d), retrying in %.1fs: %s",
-                attempt,
-                MAX_RETRIES,
-                wait,
-                exc,
+                f"kalshi - get_markets failed (attempt {attempt}/{MAX_RETRIES}), "
+                f"retrying in {wait:.1f}s: {exc}"
             )
             time.sleep(wait)
 
