@@ -1,0 +1,2 @@
+MARKET_ID_PREFIX = "mkt_"
+OUTCOME_ID_PREFIX = "out_"
