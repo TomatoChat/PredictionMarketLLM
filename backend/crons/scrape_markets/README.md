@@ -14,10 +14,10 @@ Writes are idempotent via `ON CONFLICT DO UPDATE`, so re-running on the same day
 
 ## Sources
 
-| Scraper | Source | Helper |
-| --- | --- | --- |
-| `scrape_polymarket` | Polymarket | [helpers/scrape_polymarket.py](helpers/scrape_polymarket.py) |
-| `scrape_kalshi` | Kalshi (unauthenticated public market data endpoint) | [helpers/scrape_kalshi.py](helpers/scrape_kalshi.py) |
+| Scraper | Source | Helper | In `SCRAPERS` |
+| --- | --- | --- | --- |
+| `scrape_polymarket` | Polymarket | [helpers/scrape_polymarket.py](helpers/scrape_polymarket.py) | yes |
+| `scrape_kalshi` | Kalshi (unauthenticated public market data endpoint) | [helpers/scrape_kalshi.py](helpers/scrape_kalshi.py) | no — helper exists but is not wired into `main` |
 
 To add a new source, write a `helpers/scrape_<source>.py` exposing a `() -> bool` callable, re-export it from [helpers/__init__.py](helpers/__init__.py), and append it to `SCRAPERS` in [main.py](main.py).
 
@@ -33,6 +33,7 @@ Set the following env vars (a `.env` file at the repo root works — it's loaded
 | `DB_PORT` | Postgres port (e.g. `5432`) |
 | `DB_NAME` | Database name (e.g. `postgres`) |
 | `DB_SSLMODE` | Optional, defaults to `require`. Set to `disable` when pointing at a local Supabase (`supabase start`) that doesn't speak SSL. |
+| `OPENAI_API_KEY` | Required at import time: `helpers/__init__.py` loads `scrape_kalshi.py`, which constructs `Settings()` eagerly. Any non-empty value works if you only run the Polymarket scraper. |
 
 Kalshi market data uses Kalshi's public, unauthenticated endpoints — no API keys are needed.
 
@@ -51,8 +52,10 @@ uv run python -c "from backend.crons.scrape_markets.helpers import scrape_kalshi
 
 ## Schedule
 
-Triggered by the GitHub Actions workflow [scrape_markets.yml](../../../.github/workflows/scrape_markets.yml), which runs 6 times a day every 4 hours starting at midnight New York time (00, 04, 08, 12, 16, 20 NY).
+Triggered by the GitHub Actions workflow [predict_markets.yml](../../../.github/workflows/predict_markets.yml), which runs every 4 hours on the hour (`0 */4 * * *` UTC, 6×/day). The same workflow then runs the [predict_markets](../predict_markets/README.md) cron as a dependent job.
 
-Each source runs as its own parallel job (`polymarket`, `kalshi`) so they don't block each other. `workflow_dispatch` exposes one boolean input per source (both default to `true`); untick one to skip it for a manual run. The scheduled cron always runs both regardless of the inputs.
+In CI only `scrape_polymarket` is called — not `main()` — so adding a scraper to `SCRAPERS` does **not** make CI pick it up. The workflow must be edited to invoke the new scraper (today, as its own job).
 
-The DB connection vars are provided as the repository secrets `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME`.
+`workflow_dispatch` exposes a `polymarket` boolean input (defaults to `true`); untick it to skip the scrape on a manual run. The scheduled cron always runs it.
+
+Secrets come from the GitHub Environment selected by the workflow (`prd` by default, `stg` available via manual dispatch): `DB_USER`, `DB_PASSWORD`, `DB_HOST`, `DB_PORT`, `DB_NAME`, `OPENAI_API_KEY`.
