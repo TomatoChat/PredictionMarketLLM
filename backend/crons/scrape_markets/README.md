@@ -32,6 +32,7 @@ Set the following env vars (a `.env` file at the repo root works — it's loaded
 | `DB_HOST` | Postgres host (e.g. `aws-1-<region>.pooler.supabase.com`) |
 | `DB_PORT` | Postgres port (e.g. `5432`) |
 | `DB_NAME` | Database name (e.g. `postgres`) |
+| `DB_SSLMODE` | Optional, defaults to `require`. Set to `disable` when pointing at a local Supabase (`supabase start`) that doesn't speak SSL. |
 
 Kalshi market data uses Kalshi's public, unauthenticated endpoints — no API keys are needed.
 
