@@ -1,0 +1,48 @@
+name: Scrape Markets
+
+on:
+  schedule:
+    - cron: "0 0,1,4,5,8,9,12,13,16,17,20,21 * * *"
+  workflow_dispatch:
+
+jobs:
+  scrape-markets:
+    runs-on: ubuntu-latest
+    env:
+      DB_USER: ${{ secrets.DB_USER }}
+      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+      DB_HOST: ${{ secrets.DB_HOST }}
+      DB_PORT: ${{ secrets.DB_PORT }}
+      DB_NAME: ${{ secrets.DB_NAME }}
+    steps:
+      - name: Gate on New York 4-hour slot
+        id: ny
+        run: |
+          ny_hour=$(TZ=America/New_York date +%H)
+          echo "ny_hour=$ny_hour"
+          if [ "${{ github.event_name }}" = "schedule" ] && [ $((10#$ny_hour % 4)) -ne 0 ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - uses: actions/checkout@v6
+        if: steps.ny.outputs.run == 'true'
+
+      - name: Install uv
+        if: steps.ny.outputs.run == 'true'
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
+      - name: Set up Python
+        if: steps.ny.outputs.run == 'true'
+        run: uv python install
+
+      - name: Install dependencies
+        if: steps.ny.outputs.run == 'true'
+        run: uv sync --frozen
+
+      - name: Run scrape_markets
+        if: steps.ny.outputs.run == 'true'
+        run: uv run python -c "import sys; from backend.crons.scrape_markets.main import main; sys.exit(0 if main() else 1)"
