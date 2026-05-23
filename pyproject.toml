@@ -5,6 +5,7 @@ description = "Let LLMs play on prediction markets"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "kalshi-python-sync>=3.18.0",
     "psycopg[binary]>=3.3.4",
     "py-clob-client-v2>=1.0.1",
     "pydantic>=2.13.4",
