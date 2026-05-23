@@ -1,4 +1,4 @@
-from pydantic import computed_field
+from pydantic import SecretStr, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -11,6 +11,8 @@ class Settings(BaseSettings):
     DB_PORT: int
     DB_NAME: str
     DB_SSLMODE: str = "require"
+
+    OPENAI_API_KEY: SecretStr
 
     @computed_field  # type: ignore[prop-decorator]
     @property
