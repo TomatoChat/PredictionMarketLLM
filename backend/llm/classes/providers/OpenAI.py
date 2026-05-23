@@ -67,7 +67,7 @@ class OpenAI(LLMProvider):
 
         started = time.perf_counter()
         response = self.client.responses.parse(**kwargs.to_kwargs())
-        raw = response.model_dump()
+        raw = response.model_dump(warnings=False)
 
         if response.output_parsed is None:
             raise RuntimeError(
