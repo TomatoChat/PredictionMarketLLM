@@ -26,11 +26,11 @@ Set the following env vars (a `.env` file at the repo root works — it's loaded
 
 | Var | Description |
 | --- | --- |
-| `user` | Postgres user (e.g. `postgres`) |
-| `password` | Postgres password |
-| `host` | Postgres host (e.g. `db.<project-ref>.supabase.co`) |
-| `port` | Postgres port (e.g. `5432`) |
-| `dbname` | Database name (e.g. `postgres`) |
+| `DB_USER` | Postgres user (e.g. `postgres.<project-ref>` for the Session pooler) |
+| `DB_PASSWORD` | Postgres password |
+| `DB_HOST` | Postgres host (e.g. `aws-1-<region>.pooler.supabase.com`) |
+| `DB_PORT` | Postgres port (e.g. `5432`) |
+| `DB_NAME` | Database name (e.g. `postgres`) |
 
 Then:
 
