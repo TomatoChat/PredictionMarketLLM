@@ -11,9 +11,9 @@ from backend.supabase.queries.get_llm_config_by_name import (
     get_llm_config_by_name,
 )
 from backend.supabase.queries.get_market import GetMarketResponse, get_market
-from backend.supabase.queries.get_outcomes_for_market import (
+from backend.supabase.queries.get_market_outcomes import (
     GetOutcomesForMarketResponse,
-    get_outcomes_for_market,
+    get_market_outcomes,
 )
 from backend.supabase.queries.insert_llm_predictions import (
     InsertLLMPredictionsResponse,
@@ -51,7 +51,7 @@ __all__ = [
     "get_active_market_ids",
     "get_llm_config_by_name",
     "get_market",
-    "get_outcomes_for_market",
+    "get_market_outcomes",
     "insert_llm_predictions",
     "upsert_llm_configs",
     "upsert_market_daily",

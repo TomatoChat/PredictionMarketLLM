@@ -21,10 +21,10 @@ def upsert_llm_configs(
         set_={
             "provider": stmt.excluded.provider,
             "model": stmt.excluded.model,
+            "model_snapshot": stmt.excluded.model_snapshot,
             "temperature": stmt.excluded.temperature,
             "top_p": stmt.excluded.top_p,
             "max_tokens": stmt.excluded.max_tokens,
-            "system_prompt": stmt.excluded.system_prompt,
             "tools": stmt.excluded.tools,
             "extra": stmt.excluded.extra,
             "active": stmt.excluded.active,

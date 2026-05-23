@@ -11,7 +11,7 @@ class GetOutcomesForMarketResponse(BaseModel):
     outcomes: list[Outcome]
 
 
-def get_outcomes_for_market(
+def get_market_outcomes(
     session: Session, market_id: str
 ) -> GetOutcomesForMarketResponse:
     """Return every outcome of a market, ordered by id for deterministic iteration."""
