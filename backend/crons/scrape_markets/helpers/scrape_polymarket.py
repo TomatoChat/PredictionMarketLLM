@@ -4,18 +4,22 @@ from itertools import batched
 from uuid import uuid5
 
 from sqlalchemy import create_engine
-from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 from tqdm import tqdm
 
 from backend.polymarket import fetch_active_markets
-from settings import get_settings
 from backend.supabase import Market, MarketDaily, Outcome, Source
 from backend.supabase.consts import (
     MARKET_ID_PREFIX,
     OUTCOME_ID_PREFIX,
     UUID_NAMESPACE,
 )
+from backend.supabase.queries import (
+    upsert_market_daily,
+    upsert_markets,
+    upsert_outcomes,
+)
+from settings import get_settings
 
 BATCH_SIZE = 1000
 
@@ -101,53 +105,10 @@ def scrape_polymarket() -> bool:
                         (row.outcome_id, row.snapshot_date): row for row in daily_orms
                     }.values()
                 )
-                market_stmt = insert(Market).values(
-                    [row.model_dump() for row in market_orms]
-                )
-                market_stmt = market_stmt.on_conflict_do_update(
-                    index_elements=["id"],
-                    set_={
-                        "question": market_stmt.excluded.question,
-                        "description": market_stmt.excluded.description,
-                        "slug": market_stmt.excluded.slug,
-                        "end_date": market_stmt.excluded.end_date,
-                        "last_seen_at": market_stmt.excluded.last_seen_at,
-                    },
-                )
 
-                session.execute(market_stmt)
-
-                outcome_stmt = insert(Outcome).values(
-                    [row.model_dump() for row in outcome_orms]
-                )
-                outcome_stmt = outcome_stmt.on_conflict_do_update(
-                    index_elements=["id"],
-                    set_={
-                        "label": outcome_stmt.excluded.label,
-                        "resolved_winner": outcome_stmt.excluded.resolved_winner,
-                    },
-                )
-
-                session.execute(outcome_stmt)
-
-                daily_stmt = insert(MarketDaily).values(
-                    [row.model_dump() for row in daily_orms]
-                )
-                daily_stmt = daily_stmt.on_conflict_do_update(
-                    index_elements=["outcome_id", "snapshot_date"],
-                    set_={
-                        "captured_at": daily_stmt.excluded.captured_at,
-                        "price": daily_stmt.excluded.price,
-                        "volume": daily_stmt.excluded.volume,
-                        "liquidity": daily_stmt.excluded.liquidity,
-                        "active": daily_stmt.excluded.active,
-                        "closed": daily_stmt.excluded.closed,
-                        "archived": daily_stmt.excluded.archived,
-                        "accepting_orders": daily_stmt.excluded.accepting_orders,
-                    },
-                )
-
-                session.execute(daily_stmt)
+                upsert_markets(session, market_orms)
+                upsert_outcomes(session, outcome_orms)
+                upsert_market_daily(session, daily_orms)
                 session.commit()
 
                 n_markets += len(market_orms)
