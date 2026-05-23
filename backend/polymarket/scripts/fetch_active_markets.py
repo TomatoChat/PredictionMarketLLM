@@ -3,8 +3,8 @@ from collections.abc import Iterator
 from py_clob_client_v2.client import ClobClient
 from tqdm import tqdm
 
-from backend.polymarket.models.Market import Market
-from backend.polymarket.models.MarketsPage import MarketsPage
+from backend.polymarket.models import Market, MarketsPage
+from backend.polymarket.scripts.get_markets_with_retry import get_markets_with_retry
 
 HOST = "https://clob.polymarket.com"
 CHAIN_ID = 137
@@ -13,7 +13,10 @@ END_CURSOR = "LTE="
 
 
 def fetch_active_markets() -> Iterator[Market]:
-    """Yield active+open Polymarket markets one at a time, streaming across paginated CLOB pages."""
+    """Yield active+open Polymarket markets one at a time, streaming across paginated CLOB pages.
+
+    Transient HTTP failures from the CLOB API are retried inside get_markets_with_retry.
+    """
     client = ClobClient(host=HOST, chain_id=CHAIN_ID)
     next_cursor = INITIAL_CURSOR
     total_seen = 0
@@ -21,7 +24,7 @@ def fetch_active_markets() -> Iterator[Market]:
 
     with tqdm(desc="polymarket - fetching pages", unit="page") as pbar:
         while next_cursor and next_cursor != END_CURSOR:
-            raw = client.get_markets(next_cursor)
+            raw = get_markets_with_retry(client, next_cursor)
             page = MarketsPage.model_validate(raw)
             total_seen += len(page.data)
 
