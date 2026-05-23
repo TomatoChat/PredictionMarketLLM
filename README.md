@@ -17,3 +17,11 @@ Let LLMs play on prediction markets.
 uv sync
 uv run pre-commit install
 ```
+
+## Crons
+
+| Cron | Description | Schedule |
+| --- | --- | --- |
+| [scrape_markets](backend/crons/scrape_markets/README.md) | Scrapes active prediction markets and upserts daily snapshots. | Every 4 hours starting at midnight New York time (6×/day) |
+
+Scheduled via GitHub Actions workflows in [.github/workflows](.github/workflows).
