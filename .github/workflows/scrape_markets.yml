@@ -4,17 +4,29 @@ on:
   schedule:
     - cron: "0 0,1,4,5,8,9,12,13,16,17,20,21 * * *"
   workflow_dispatch:
+    inputs:
+      environment:
+        description: "Environment to run against"
+        required: true
+        type: choice
+        options:
+          - prd
+          - stg
+        default: stg
 
 jobs:
   scrape-markets:
     runs-on: ubuntu-latest
+    environment: ${{ inputs.environment || 'prd' }}
     env:
-      DB_USER: ${{ secrets.DB_USER }}
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      DB_HOST: ${{ secrets.DB_HOST }}
-      DB_PORT: ${{ secrets.DB_PORT }}
-      DB_NAME: ${{ secrets.DB_NAME }}
+      DATABASE_URL: postgresql+psycopg://${{ secrets.DB_USER }}:${{ secrets.DB_PASSWORD }}@${{ secrets.DB_HOST }}:${{ secrets.DB_PORT }}/${{ secrets.DB_NAME }}
     steps:
+      - name: Reject prd from non-main branch
+        if: github.event_name == 'workflow_dispatch' && inputs.environment == 'prd' && github.ref != 'refs/heads/main'
+        run: |
+          echo "::error::prd can only run from main; current ref is ${{ github.ref }}"
+          exit 1
+
       - name: Gate on New York 4-hour slot
         id: ny
         run: |
