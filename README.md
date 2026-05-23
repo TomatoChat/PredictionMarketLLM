@@ -20,8 +20,9 @@ uv run pre-commit install
 
 ## Crons
 
-| Cron | Description | Schedule |
-| --- | --- | --- |
-| [scrape_markets](backend/crons/scrape_markets/README.md) | Scrapes active prediction markets and upserts daily snapshots. | Every 4 hours starting at midnight New York time (6×/day) |
+| Cron | Description |
+| --- | --- |
+| [scrape_markets](backend/crons/scrape_markets/README.md) | Scrapes active prediction markets and upserts daily snapshots. |
+| [predict_markets](backend/crons/predict_markets/README.md) | Runs every active `llm_config` against every active market and stores the predictions. |
 
-Scheduled via GitHub Actions workflows in [.github/workflows](.github/workflows).
+Both run from the [predict_markets.yml](.github/workflows/predict_markets.yml) GitHub Actions workflow, every 4 hours starting at midnight UTC (6×/day). The `predict` job depends on `polymarket` completing first.
