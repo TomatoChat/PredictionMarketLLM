@@ -14,6 +14,8 @@ The entrypoint is [main.py](main.py); `python -m backend.crons.predict_markets` 
 
 `--market-id` requires `--config`. Exit code is `0` on success, `1` on failure.
 
+Add `--dry-run` to any of the modes above to call the provider(s) and log the chosen outcome + token counts without writing any `llm_prediction` rows. Useful for local iteration without polluting the DB.
+
 For each (config × market) call, [PredictorLLM](../../llm/classes/PredictorLLM.py) builds the prompt, invokes the configured provider/model, and writes one `LLMPrediction` row — `outcome_id` is the outcome the model picked, plus the full raw response.
 
 A run is considered successful only if every market succeeds (`n_failed == 0`).
@@ -50,6 +52,12 @@ One config, one market:
 
 ```bash
 uv run python -m backend.crons.predict_markets --config gpt-4.1-temp0 --market-id mkt_1234abcd
+```
+
+Dry-run (call the model, log the chosen outcome, write nothing):
+
+```bash
+uv run python -m backend.crons.predict_markets --config gpt-4.1-temp0 --market-id mkt_1234abcd --dry-run
 ```
 
 ## Schedule
