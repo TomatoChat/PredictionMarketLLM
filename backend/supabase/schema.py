@@ -6,13 +6,16 @@ from typing import Any
 from sqlalchemy import (
     Boolean,
     Date,
-    Enum as SqlEnum,
     ForeignKey,
     Index,
+    Integer,
     Numeric,
     Text,
     UniqueConstraint,
     func,
+)
+from sqlalchemy import (
+    Enum as SqlEnum,
 )
 from sqlalchemy.dialects.postgresql import JSONB, TIMESTAMP
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
@@ -188,4 +191,147 @@ class MarketDaily(Base):
         Boolean,
         nullable=False,
         comment="Whether the order book was accepting orders at the time of the snapshot.",
+    )
+
+
+class LLMProvider(StrEnum):
+    """LLM provider whose SDK is used to generate the prediction. The string value matches the Postgres enum label."""
+
+    OPENAI = "openai"
+    ANTHROPIC = "anthropic"
+    GOOGLE = "google"
+
+
+class LLMConfig(Base):
+    """One row per experiment configuration. id is `cfg_<uuid v5>` derived from name; tools and extra are jsonb escape hatches."""
+
+    __tablename__ = "llm_config"
+    __table_args__ = (Index("ix_llm_config_provider_active", "provider", "active"),)
+
+    id: Mapped[str] = mapped_column(
+        Text,
+        primary_key=True,
+        comment="Prefixed identifier 'cfg_<uuid v5>' derived from name; stable across re-inserts.",
+    )
+    name: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+        unique=True,
+        comment="Human-readable label for this experiment configuration (e.g. 'gpt-4.1-temp0-with-exa').",
+    )
+    provider: Mapped[LLMProvider] = mapped_column(
+        SqlEnum(
+            LLMProvider,
+            name="llm_provider",
+            native_enum=True,
+            values_callable=lambda e: [m.value for m in e],
+        ),
+        nullable=False,
+        comment="Which provider SDK to call.",
+    )
+    model: Mapped[str] = mapped_column(
+        Text,
+        nullable=False,
+        comment="Provider-specific model identifier (e.g. 'gpt-4.1', 'claude-sonnet-4-6').",
+    )
+    temperature: Mapped[Decimal | None] = mapped_column(
+        Numeric(3, 2),
+        comment="Sampling temperature passed to the provider; null leaves the provider default.",
+    )
+    top_p: Mapped[Decimal | None] = mapped_column(
+        Numeric(3, 2),
+        comment="Nucleus sampling top_p passed to the provider; null leaves the provider default.",
+    )
+    max_tokens: Mapped[int | None] = mapped_column(
+        Integer,
+        comment="Maximum tokens to generate; null leaves the provider default.",
+    )
+    tools: Mapped[list] = mapped_column(
+        JSONB,
+        nullable=False,
+        server_default="[]",
+        comment='Array of tool specs the model is allowed to call (e.g. [{"type":"web_search"},{"type":"exa"}]).',
+    )
+    extra: Mapped[dict] = mapped_column(
+        JSONB,
+        nullable=False,
+        server_default="{}",
+        comment="Object of provider-specific knobs that don't have a dedicated column (e.g. reasoning_effort, thinking budget, seed).",
+    )
+    active: Mapped[bool] = mapped_column(
+        Boolean,
+        nullable=False,
+        server_default="true",
+        comment="Whether to include this config in scheduled prediction runs.",
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        comment="Wall-clock timestamp when this config row was inserted.",
+    )
+
+
+class LLMPrediction(Base):
+    """One row per LLM call against a market. Append-only; ``outcome_id`` points to the outcome the model picked as the winner."""
+
+    __tablename__ = "llm_prediction"
+    __table_args__ = (
+        Index("ix_llm_prediction_market_captured", "market_id", "captured_at"),
+        Index("ix_llm_prediction_outcome_captured", "outcome_id", "captured_at"),
+        Index("ix_llm_prediction_config_captured", "llm_config_id", "captured_at"),
+    )
+
+    id: Mapped[str] = mapped_column(
+        Text,
+        primary_key=True,
+        comment="Prefixed identifier 'pred_<uuid v5>'; one row per LLM call against a market.",
+    )
+    market_id: Mapped[str] = mapped_column(
+        Text,
+        ForeignKey("market.id", ondelete="CASCADE"),
+        nullable=False,
+        comment="Market the prediction is about (prefixed 'mkt_<uuid>').",
+    )
+    outcome_id: Mapped[str | None] = mapped_column(
+        Text,
+        ForeignKey("outcome.id", ondelete="CASCADE"),
+        comment="Outcome the model picked as the predicted winning resolution (prefixed 'out_<uuid>'); null when the call failed.",
+    )
+    llm_config_id: Mapped[str] = mapped_column(
+        Text,
+        ForeignKey("llm_config.id", ondelete="CASCADE"),
+        nullable=False,
+        comment="Config used to generate this prediction (prefixed 'cfg_<uuid>').",
+    )
+    captured_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+        comment="Wall-clock timestamp when the prediction call completed.",
+    )
+    model_snapshot: Mapped[str | None] = mapped_column(
+        Text,
+        comment="Resolved provider-specific model snapshot/version that actually answered (e.g. 'gpt-5-nano-2025-08-07'); may differ from llm_config.model when an alias was used.",
+    )
+    tool_calls: Mapped[list | None] = mapped_column(
+        JSONB,
+        comment="Tool invocations made during the run (tool name, arguments, results).",
+    )
+    raw_response: Mapped[dict] = mapped_column(
+        JSONB,
+        nullable=False,
+        comment="Full raw provider response, kept as an escape hatch for fields not yet normalized.",
+    )
+    input_tokens: Mapped[int | None] = mapped_column(
+        Integer, comment="Input/prompt token count reported by the provider."
+    )
+    output_tokens: Mapped[int | None] = mapped_column(
+        Integer, comment="Output/completion token count reported by the provider."
+    )
+    latency_ms: Mapped[int | None] = mapped_column(
+        Integer, comment="End-to-end latency of the provider call in milliseconds."
+    )
+    error: Mapped[str | None] = mapped_column(
+        Text, comment="Error message if the call failed; null on success."
     )
