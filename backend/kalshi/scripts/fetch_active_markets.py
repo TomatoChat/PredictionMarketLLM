@@ -3,13 +3,16 @@ from collections.abc import Iterator
 from kalshi_python_sync import Configuration, KalshiClient, Market, MarketApi
 from tqdm import tqdm
 
+from backend.kalshi.scripts.get_markets_with_retry import get_markets_with_retry
+
 PAGE_LIMIT = 1000
 
 
 def fetch_active_markets() -> Iterator[Market]:
     """Yield open Kalshi markets one at a time via the official kalshi-python-sync SDK.
 
-    Public market data endpoint — no authentication required.
+    Public market data endpoint — no authentication required. Transient HTTP failures
+    are retried inside get_markets_with_retry.
     """
     client = KalshiClient(Configuration())
     api = MarketApi(client)
@@ -18,7 +21,7 @@ def fetch_active_markets() -> Iterator[Market]:
 
     with tqdm(desc="kalshi - fetching pages", unit="page") as pbar:
         while True:
-            response = api.get_markets(limit=PAGE_LIMIT, cursor=cursor, status="open")
+            response = get_markets_with_retry(api, cursor, PAGE_LIMIT)
             total_seen += len(response.markets)
             for market in response.markets:
                 yield market
