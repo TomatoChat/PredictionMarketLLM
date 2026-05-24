@@ -3,4 +3,4 @@ runtime:
   name: python
   options:
     virtualenv: .venv
-description: Deploy each backend/queues/<slug>.yaml as a Cloud Tasks queue via Pulumi.
+description: Deploy each backend/queues/<slug>.yaml as a Cloud Tasks queue with IAM bindings to invoke the target Cloud Run service.

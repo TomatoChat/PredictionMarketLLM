@@ -1,0 +1,12 @@
+[project]
+name = "orchestrator-api"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.30",
+    "pydantic>=2.13",
+    "pydantic-settings>=2.6",
+    "google-cloud-tasks>=2.16",
+    "google-cloud-secret-manager>=2.20",
+]
