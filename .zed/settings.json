@@ -5,36 +5,36 @@
       "format_on_save": "on",
       "formatter": {
         "language_server": {
-          "name": "ruff",
-        },
+          "name": "ruff"
+        }
       },
       "code_actions_on_save": {
         "source.organizeImports.ruff": true,
-        "source.fixAll.ruff": true,
-      },
-    },
+        "source.fixAll.ruff": true
+      }
+    }
   },
   "lsp": {
     "ruff": {
       "binary": {
-        "path_lookup": true,
-      },
+        "path_lookup": true
+      }
     },
     "ty": {
       "binary": {
-        "path_lookup": true,
-      },
+        "path_lookup": true
+      }
     },
     "pyright": {
       "settings": {
         "python": {
           "analysis": {
-            "extraPaths": ["packages"],
+            "extraPaths": ["packages"]
           },
           "venvPath": ".",
-          "venv": ".venv",
-        },
-      },
-    },
-  },
+          "venv": ".venv"
+        }
+      }
+    }
+  }
 }
