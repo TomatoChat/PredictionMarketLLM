@@ -1,3 +1,0 @@
-ancestorEntries = []
-ourEntries = ["backend/infra/queue_deployer/README.md"]
-theirEntries = ["backend/infra/queue_deployer/README.md"]

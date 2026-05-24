@@ -33,14 +33,13 @@ backend/apis/<slug>/
 | Route handler signature | `def handler(request: <X>Request) -> <X>Response` | see [llm/predict.py](llm/src/routes/predict.py) |
 | Response decorator | `@router.<verb>(..., response_model=<X>Response, response_model_exclude_none=True)` | every route |
 
-Every service exposes `/healthz` and `/readyz` — Cloud Run uses them for startup + liveness probes.
+Every service exposes `/health` and `/ready` — Cloud Run uses them for startup + liveness probes.
 
 ## Shared libs
 
-Each service's [Dockerfile](kalshi/Dockerfile) `COPY`s the shared backend libraries from the repo root into `/app/` alongside `src/`:
+Each service's [Dockerfile](polymarket/Dockerfile) `COPY`s the shared backend libraries from the repo root into `/app/` alongside `src/`:
 
 ```dockerfile
-COPY backend/llm       ./llm        # llm domain logic (PredictorLLM, providers, prompts)
 COPY backend/embedder  ./embedder   # OpenAI Embedder wrapper
 COPY backend/qdrant    ./qdrant     # Qdrant client + schema
 COPY backend/supabase  ./supabase   # SQLAlchemy ORM + queries
@@ -48,9 +47,9 @@ COPY backend/tasks     ./tasks      # Cloud Tasks producer helpers
 COPY settings          ./settings   # pydantic-settings Settings()
 ```
 
-Inside the container the imports look "as if at the top level": `from supabase import LLMConfig`, `from qdrant import MARKETS`, `from llm import PredictorLLM`, `from tasks import enqueue_embed_market`, `from settings import get_settings`. The same imports resolve in the IDE because each service has a [pyrightconfig.json](kalshi/pyrightconfig.json) with `extraPaths` pointing at `backend/` and the repo root.
+Inside the container the imports look "as if at the top level": `from supabase import LLMConfig`, `from qdrant import MARKETS`, `from tasks import enqueue`, `from settings import get_settings`. The same imports resolve in the IDE because each service has a [pyrightconfig.json](polymarket/pyrightconfig.json) with `extraPaths` pointing at `backend/` and the repo root.
 
-The service's own [pyproject.toml](kalshi/pyproject.toml) lists every third-party dep used directly OR transitively — including `sqlalchemy`, `qdrant-client`, `openai`, `google-cloud-tasks`, etc., when the service uses a shared lib that needs them.
+The service's own [pyproject.toml](polymarket/pyproject.toml) lists every third-party dep used directly OR transitively — including `sqlalchemy`, `qdrant-client`, `openai`, `google-cloud-tasks`, etc., when the service uses a shared lib that needs them.
 
 ## Services in this repo
 
@@ -59,7 +58,6 @@ The service's own [pyproject.toml](kalshi/pyproject.toml) lists every third-part
 | [orchestrator](orchestrator) | Cron entry point — fans out scrape work to queues | `POST /prepare-scraping` |
 | [polymarket](polymarket) | Polymarket page scrape (one cursor per call) + post-scrape fan-out to embedding & prediction queues | `GET /markets`, `POST /scrape` |
 | [llm](llm) | One-shot LLM compute | `POST /predict`, `POST /embed-market` |
-| [kalshi](kalshi) | Kalshi data fetch + scrape (legacy full-scrape; not yet wired into the queue pipeline) | `GET /markets`, `POST /scrape` |
 
 The end-to-end flow is **cron → orchestrator → queues → services**:
 
@@ -78,7 +76,7 @@ Queues live under [../queues](../queues); the daily cron entry lives under [../c
 
 ## Deploy
 
-Push to `main` touching `backend/apis/**` (or any of the shared libs the services copy in) — [.github/workflows/deploy_apis.yml](../../.github/workflows/deploy_apis.yml) runs `pulumi up` against [../infra/cloud_run_deployer](../infra/cloud_run_deployer) and reconciles every service in one pass.
+Push to `main` touching `backend/apis/**` (or any of the shared libs the services copy in) — [.github/workflows/deploy.yml](../../.github/workflows/deploy.yml) runs `pulumi up` against [../infra/cloud_run_deployer](../infra/cloud_run_deployer) and reconciles every service in one pass.
 
 Locally:
 
@@ -94,9 +92,9 @@ The deployer auto-discovers every `backend/apis/<slug>/deployment.yaml` and buil
 
 1. `mkdir backend/apis/<new_slug>/` with the layout above.
 2. Pick a kebab-case `service_slug` and put it in `deployment.yaml`.
-3. Write `main.py` + at least `routes/healthz.py` and `routes/readyz.py` (Cloud Run probes need them).
+3. Write `main.py` + at least `routes/health.py` and `routes/ready.py` (Cloud Run probes need them).
 4. List runtime deps in `pyproject.toml`.
 5. Add `Dockerfile` + `.dockerignore` (copy an existing service's as a template).
-6. Push — `deploy_apis.yml` picks it up automatically.
+6. Push — `deploy.yml` picks it up automatically.
 
-See [example](kalshi) as a minimal reference.
+See [polymarket](polymarket) as a reference.
