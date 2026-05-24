@@ -1,0 +1,56 @@
+name: Deploy APIs
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "backend/apis/**"
+      - "backend/infra/cloud_run_deployer/**"
+      - ".github/workflows/deploy_apis.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-apis-prd
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: prd
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS_JSON }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v2
+
+      - name: Configure Docker for GCR
+        run: gcloud auth configure-docker gcr.io --quiet
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.14"
+
+      - name: Install deployer dependencies
+        working-directory: backend/infra/cloud_run_deployer
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install -r requirements.txt
+
+      - name: Install Pulumi CLI
+        uses: pulumi/actions@v6
+
+      - name: Pulumi up
+        working-directory: backend/infra/cloud_run_deployer
+        run: pulumi up --yes --stack prd
