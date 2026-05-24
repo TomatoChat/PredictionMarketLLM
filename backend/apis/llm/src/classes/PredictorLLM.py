@@ -5,16 +5,16 @@ from uuid import uuid5
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
-from backend.llm.models import MarketPromptContext, ModelSnapshot
-from backend.llm.models.LLMRegistry import LLMRegistry
-from backend.supabase import LLMConfig, LLMPrediction
-from backend.supabase import LLMProvider as LLMProviderEnum
-from backend.supabase.consts import (
+from ..models import MarketPromptContext, ModelSnapshot
+from ..models.LLMRegistry import LLMRegistry
+from supabase import LLMConfig, LLMPrediction
+from supabase import LLMProvider as LLMProviderEnum
+from supabase.consts import (
     LLM_CONFIG_ID_PREFIX,
     LLM_PREDICTION_ID_PREFIX,
     UUID_NAMESPACE,
 )
-from backend.supabase.queries import (
+from supabase.queries import (
     get_market,
     get_market_outcomes,
     insert_llm_predictions,
@@ -166,12 +166,3 @@ class PredictorLLM:
         session.commit()
 
         return True
-
-
-if __name__ == "__main__":
-    import sys
-
-    logging.basicConfig(
-        level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s - %(message)s"
-    )
-    sys.exit(0 if PredictorLLM.seed_canonical_configs() else 1)

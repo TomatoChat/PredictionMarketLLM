@@ -12,4 +12,5 @@ def build_possible_results_enum(outcome_labels: list[str]) -> type[StrEnum]:
         raise ValueError(
             "build_possible_results_enum requires at least one outcome label"
         )
+
     return StrEnum("PossibleResults", {label: label for label in outcome_labels})

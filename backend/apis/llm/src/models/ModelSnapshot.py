@@ -1,6 +1,6 @@
 from enum import StrEnum
 
-from backend.llm.models.Model import Model
+from .Model import Model
 
 
 class ModelSnapshot(StrEnum):

@@ -4,14 +4,14 @@ from functools import cached_property
 import openai
 from pydantic import create_model
 
-from backend.llm.helpers import build_possible_results_enum
-from backend.llm.models import (
+from ...helpers import build_possible_results_enum
+from ...models import (
     KwargsOpenAI,
     LLMPredictionResult,
     MarketPromptContext,
 )
-from backend.llm.classes.providers.LLMProvider import LLMProvider
-from backend.supabase import LLMConfig
+from .LLMProvider import LLMProvider
+from supabase import LLMConfig
 from settings import get_settings
 
 settings = get_settings()
