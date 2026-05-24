@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from sqlalchemy.dialects.postgresql import insert
 from sqlalchemy.orm import Session
 
-from backend.supabase import Market
+from .. import Market
 
 
 class UpsertMarketsResponse(BaseModel):
