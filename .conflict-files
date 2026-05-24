@@ -1,3 +1,0 @@
-ancestorEntries = []
-ourEntries = ["backend/apis/llm/src/routes/health.py", "backend/apis/llm/src/routes/ready.py"]
-theirEntries = ["backend/apis/llm/src/routes/health.py", "backend/apis/llm/src/routes/ready.py"]
