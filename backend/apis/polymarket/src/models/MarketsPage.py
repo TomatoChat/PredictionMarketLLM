@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
 
-from backend.polymarket.models.Market import Market
+from .Market import Market
 
 
 class MarketsPage(BaseModel):

@@ -3,8 +3,8 @@ from collections.abc import Iterator
 from py_clob_client_v2.client import ClobClient
 from tqdm import tqdm
 
-from backend.polymarket.models import Market, MarketsPage
-from backend.polymarket.scripts.get_markets_with_retry import get_markets_with_retry
+from ..models import Market, MarketsPage
+from .get_markets_with_retry import get_markets_with_retry
 
 HOST = "https://clob.polymarket.com"
 CHAIN_ID = 137

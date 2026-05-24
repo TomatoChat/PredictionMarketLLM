@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict, Field
 
-from backend.polymarket.models.RewardRate import RewardRate
+from .RewardRate import RewardRate
 
 
 class Rewards(BaseModel):

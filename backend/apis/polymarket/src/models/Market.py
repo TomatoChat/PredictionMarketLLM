@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict, Field
 
-from backend.polymarket.models.Rewards import Rewards
-from backend.polymarket.models.Token import Token
+from .Rewards import Rewards
+from .Token import Token
 
 
 class Market(BaseModel):
