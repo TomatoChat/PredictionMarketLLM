@@ -1,4 +1,3 @@
-<<<<<<< New base: queue deployer
 from pathlib import Path
 
 import pulumi
@@ -46,42 +45,3 @@ def deploy_queue(
 
     pulumi.export(f"{slug}_queue_id", queue.id)
     pulumi.export(f"{slug}_queue_name", queue.name)
-|||||||
-=======
-from pathlib import Path
-
-import pulumi
-import pulumi_gcp as gcp
-
-from ..models import QueueConfig
-
-
-def deploy_queue(
-    queue_yaml: Path,
-    project_id: str,
-    region: str,
-) -> None:
-    slug = queue_yaml.stem
-    cfg = QueueConfig.load_config(queue_yaml)
-
-    queue = gcp.cloudtasks.Queue(
-        f"{slug}-queue",
-        name=slug,
-        location=region,
-        project=project_id,
-        rate_limits=gcp.cloudtasks.QueueRateLimitsArgs(
-            max_concurrent_dispatches=cfg.max_concurrent_dispatches,
-            max_dispatches_per_second=cfg.max_dispatches_per_second,
-        ),
-        retry_config=gcp.cloudtasks.QueueRetryConfigArgs(
-            max_attempts=cfg.max_attempts,
-            max_retry_duration=cfg.max_retry_duration,
-            min_backoff=cfg.min_backoff,
-            max_backoff=cfg.max_backoff,
-            max_doublings=cfg.max_doublings,
-        ),
-    )
-
-    pulumi.export(f"{slug}_queue_id", queue.id)
-    pulumi.export(f"{slug}_queue_name", queue.name)
->>>>>>> Current commit: queue deployer
