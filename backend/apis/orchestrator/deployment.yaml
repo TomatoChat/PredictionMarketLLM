@@ -1,0 +1,25 @@
+service_slug: orchestrator
+service_name: orchestrator
+is_public: false
+
+memory: 128
+cpu: 0.5
+min_instances: 0
+max_instances: 1
+concurrency: 4
+timeout: 60
+
+environment_variables:
+  TASK_RUNNER_SA_EMAIL: task-runner@prediction-market-llm.iam.gserviceaccount.com
+  POLYMARKET_SERVICE_URL: https://polymarket-855896249283.europe-west4.run.app
+
+startup_probe_path: /ready
+startup_probe_initial_delay: 0
+startup_probe_timeout: 1
+startup_probe_period: 5
+startup_probe_failure_threshold: 20
+
+health_check_path: /health
+health_check_timeout: 1
+health_check_interval: 10
+health_check_failure_threshold: 3

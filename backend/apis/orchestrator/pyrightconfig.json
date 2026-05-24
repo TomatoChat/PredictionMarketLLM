@@ -1,0 +1,10 @@
+{
+  "include": ["main.py", "src"],
+  "extraPaths": [
+    "../..",
+    "../../..",
+    "../polymarket/src/models"
+  ],
+  "venvPath": ".",
+  "venv": ".venv"
+}
