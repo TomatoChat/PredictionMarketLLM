@@ -1,0 +1,10 @@
+target_service_slug: llm
+
+max_concurrent_dispatches: 4
+max_dispatches_per_second: 1.0
+
+max_attempts: 3
+max_retry_duration: "3600s"
+min_backoff: "30s"
+max_backoff: "600s"
+max_doublings: 3
