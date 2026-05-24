@@ -1,0 +1,15 @@
+Market question:
+{{ question }}
+
+{% if description %}Background and resolution criteria:
+{{ description }}
+
+{% endif %}{% if end_date %}Resolves by: {{ end_date.isoformat() }}
+
+{% endif %}You must choose **exactly one** of the following outcomes as the most likely winning resolution:
+{% for label in outcome_labels %}- {{ label }}
+{% endfor %}
+
+Constraints:
+- Return only one label, copied verbatim from the list above — no rephrasing, no extras, no abstaining.
+- The label must be placed in the ``result`` field of the response.
