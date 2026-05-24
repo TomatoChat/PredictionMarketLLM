@@ -1,3 +1,3 @@
 ancestorEntries = []
-ourEntries = ["backend/infra/queue_deployer/README.md", "backend/queues/README.md"]
-theirEntries = ["backend/infra/queue_deployer/README.md", "backend/queues/README.md"]
+ourEntries = ["backend/infra/cron_deployer/Pulumi.yaml", "backend/infra/cron_deployer/README.md"]
+theirEntries = ["backend/infra/cron_deployer/Pulumi.yaml", "backend/infra/cron_deployer/README.md"]

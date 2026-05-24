@@ -1,0 +1,6 @@
+name: cron-deployer
+runtime:
+  name: python
+  options:
+    virtualenv: .venv
+description: Deploy each backend/crons/<name>/ as a Cloud Run Job + Cloud Scheduler trigger via Pulumi.
