@@ -5,7 +5,7 @@ description: Use this skill whenever the user asks to add, register, seed, or ex
 
 # Add a new model config
 
-A "config" here = one row in the `llm_config` table, declared in [`PredictorLLM.canonical_configs()`](../../../backend/llm/classes/PredictorLLM.py). Each config is a fully specified provider call (model + sampling + tools + extras), and the `predict_markets` cron runs every `active = true` config against every active market.
+A "config" here = one row in the `llm_config` table, declared in [`PredictorLLM.canonical_configs()`](../../../backend/apis/llm/src/classes/PredictorLLM.py). Each config is a fully specified provider call (model + sampling + tools + extras), and the `predict_markets` cron runs every `active = true` config against every active market.
 
 ## Steps
 
@@ -13,7 +13,7 @@ A "config" here = one row in the `llm_config` table, declared in [`PredictorLLM.
 
 2. **Confirm the model is in the snapshot enum.** Check `backend/llm/models/ModelSnapshot.py` (re-exported from `backend.llm.models`). If the snapshot you want isn't listed, add it there first — `model_snapshot` is what gets sent to the provider; `model` is the family alias.
 
-3. **Add an entry to `canonical_configs()`** in [`backend/llm/classes/PredictorLLM.py`](../../../backend/llm/classes/PredictorLLM.py). Pattern:
+3. **Add an entry to `canonical_configs()`** in [`backend/apis/llm/src/classes/PredictorLLM.py`](../../../backend/apis/llm/src/classes/PredictorLLM.py). Pattern:
 
    ```python
    LLMConfig(
@@ -43,7 +43,7 @@ A "config" here = one row in the `llm_config` table, declared in [`PredictorLLM.
 5. **Seed it into whichever DB `.env` points at.**
 
    ```bash
-   uv run python -m backend.llm.classes.PredictorLLM
+   uv run python -c "from backend.apis.llm.src.classes import PredictorLLM; PredictorLLM.seed_canonical_configs()"
    ```
 
    Idempotent — re-runs upsert by id. Confirm the row landed:
@@ -99,6 +99,6 @@ A "config" here = one row in the `llm_config` table, declared in [`PredictorLLM.
 
 ## Reference
 
-- [`PredictorLLM.canonical_configs`](../../../backend/llm/classes/PredictorLLM.py) — where the configs live.
+- [`PredictorLLM.canonical_configs`](../../../backend/apis/llm/src/classes/PredictorLLM.py) — where the configs live.
 - [`backend/supabase/schema.py:205`](../../../backend/supabase/schema.py) — the `LLMConfig` ORM model with column comments explaining every field.
 - [`backend/crons/predict_markets/README.md`](../../../backend/crons/predict_markets/README.md) — how the cron consumes configs.
