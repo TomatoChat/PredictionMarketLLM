@@ -21,14 +21,14 @@ def build_container(
 
     return gcp.cloudrunv2.ServiceTemplateContainerArgs(
         image=image_ref,
-        ports=gcp.cloudrunv2.ServiceTemplateContainerPortsArgs(container_port=port),
+        ports=[gcp.cloudrunv2.ServiceTemplateContainerPortArgs(container_port=port)],
         envs=env_vars,
         resources=gcp.cloudrunv2.ServiceTemplateContainerResourcesArgs(
             limits={
                 "memory": f"{deployment_config.memory}Mi",
                 "cpu": str(deployment_config.cpu),
             },
-            cpu_idle=True,
+            cpu_idle=False,
         ),
         startup_probe=gcp.cloudrunv2.ServiceTemplateContainerStartupProbeArgs(
             http_get=gcp.cloudrunv2.ServiceTemplateContainerStartupProbeHttpGetArgs(

@@ -3,4 +3,4 @@ runtime:
   name: python
   options:
     virtualenv: .venv
-description: Deploy each backend/crons/<slug>.yaml as a Cloud Scheduler entry pointing at a backend/apis/<svc>/ route.
+description: Deploy each backend/crons/<name>/ as a Cloud Run Job + Cloud Scheduler trigger via Pulumi.
