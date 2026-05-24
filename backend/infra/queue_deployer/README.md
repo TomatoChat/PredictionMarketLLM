@@ -23,24 +23,24 @@ Per queue found:
 
 ```
 backend/queues/
-└── kalshi-scrape.yaml
+└── scrape-markets-polymarket.yaml
 ```
 
 The filename **is** the queue name (kebab-case, ≤63 chars, lowercase alphanumeric + hyphens).
 
-Example `kalshi-scrape.yaml`:
+Example `scrape-markets-polymarket.yaml`:
 
 ```yaml
-target_service_slug: kalshi
+target_service_slug: polymarket
 
-max_concurrent_dispatches: 100
-max_dispatches_per_second: 500.0
+max_concurrent_dispatches: 1
+max_dispatches_per_second: 1.0
 
-max_attempts: 3
+max_attempts: 5
 max_retry_duration: "3600s"
-min_backoff: "0.1s"
-max_backoff: "3600s"
-max_doublings: 16
+min_backoff: "10s"
+max_backoff: "600s"
+max_doublings: 4
 ```
 
 ## Deploy
