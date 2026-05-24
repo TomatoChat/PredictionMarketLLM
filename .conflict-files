@@ -1,3 +1,3 @@
 ancestorEntries = []
-ourEntries = ["backend/llm/prompts/market_prediction.j2", "backend/apis/llm/src/prompts/system.j2"]
-theirEntries = ["backend/apis/llm/src/prompts/market_prediction.j2", "backend/apis/llm/src/prompts/system.j2"]
+ourEntries = ["backend/apis/llm/src/routes/health.py", "backend/apis/llm/src/routes/ready.py"]
+theirEntries = ["backend/apis/llm/src/routes/health.py", "backend/apis/llm/src/routes/ready.py"]
