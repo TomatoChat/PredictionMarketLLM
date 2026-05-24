@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.supabase import Market, MarketDaily, Outcome
+from .. import Market, MarketDaily, Outcome
 
 
 class GetActiveMarketIdsResponse(BaseModel):

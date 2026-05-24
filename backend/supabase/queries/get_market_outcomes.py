@@ -2,7 +2,7 @@ from pydantic import BaseModel, ConfigDict
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from backend.supabase import Outcome
+from .. import Outcome
 
 
 class GetOutcomesForMarketResponse(BaseModel):

@@ -1,7 +1,7 @@
 from pydantic import BaseModel, ConfigDict
 from sqlalchemy.orm import Session
 
-from backend.supabase import Market
+from .. import Market
 
 
 class GetMarketResponse(BaseModel):
