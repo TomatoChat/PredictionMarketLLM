@@ -1,0 +1,6 @@
+name: queue-deployer
+runtime:
+  name: python
+  options:
+    virtualenv: .venv
+description: Deploy each backend/queues/<slug>.yaml as a Cloud Tasks queue via Pulumi.
