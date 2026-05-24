@@ -52,7 +52,6 @@ def deploy_service(
             if deployment_config.is_public
             else "INGRESS_TRAFFIC_INTERNAL_ONLY"
         ),
-        invoker_iam_disabled=True,
         template=gcp.cloudrunv2.ServiceTemplateArgs(
             containers=[container],
             scaling=gcp.cloudrunv2.ServiceTemplateScalingArgs(
