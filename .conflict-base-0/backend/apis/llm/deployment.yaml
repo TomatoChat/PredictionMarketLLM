@@ -1,0 +1,23 @@
+service_slug: llm
+service_name: llm
+is_public: false
+
+memory: 512
+cpu: 1
+min_instances: 0
+max_instances: 1
+concurrency: 8
+timeout: 300
+
+environment_variables: {}
+
+startup_probe_path: /ready
+startup_probe_initial_delay: 0
+startup_probe_timeout: 1
+startup_probe_period: 5
+startup_probe_failure_threshold: 60
+
+health_check_path: /health
+health_check_timeout: 1
+health_check_interval: 10
+health_check_failure_threshold: 3
