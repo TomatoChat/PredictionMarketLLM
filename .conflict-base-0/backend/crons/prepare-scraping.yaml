@@ -1,6 +1,0 @@
-schedule: "0 0 * * *"
-timezone: UTC
-
-target_service_slug: orchestrator
-target_path: /prepare-scraping
-http_method: POST
