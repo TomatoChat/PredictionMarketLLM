@@ -1,3 +1,0 @@
-ancestorEntries = []
-ourEntries = ["backend/apis/README.md", "backend/infra/cloud_run_deployer/src/helpers/build_container.py"]
-theirEntries = ["backend/apis/README.md", "backend/infra/cloud_run_deployer/src/helpers/build_container.py"]
