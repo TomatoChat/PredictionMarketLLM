@@ -92,7 +92,7 @@ uv run python -c "from src.classes import PredictorLLM; PredictorLLM.seed_canoni
 - **`Base.model_dump()` returns `None` for unset columns.** [`schema.py`](backend/supabase/schema.py) defines a `model_dump()` helper on the ORM base that walks every column, falling back to `None`. If you pipe that dict into `insert(...).values(...)`, you send explicit `NULL` for columns the caller didn't set — which overrides Postgres `server_default`s and trips NOT NULL constraints. Strip `None` before insert (see [`upsert_llm_configs.py`](backend/supabase/queries/upsert_llm_configs.py)).
 - **Renaming a canonical config changes its id.** The id is `cfg_<uuid5(name)>` — rename → fresh id → old row stays in the DB and will still be picked up if `active = true`. Flip the old row to `active = false` (or delete it, accepting the cascade on `llm_prediction`).
 - **Each Cloud Run service has its own `pyproject.toml` + `.venv`.** Shared libs (`backend/supabase`, `backend/qdrant`, `backend/embedder`, `backend/tasks`) are `COPY`'d into containers at build time, not installed as packages. `pyrightconfig.json` in each service adds the repo root to `extraPaths` so editors resolve them.
-- **`TASK_RUNNER_SA_EMAIL`, `POLYMARKET_SERVICE_URL`, `LLM_SERVICE_URL` are hardcoded in each service's `deployment.yaml`.** They point at the well-known GCP-issued URLs (`https://<slug>-855896249283.europe-west4.run.app`).
+- **`TASK_RUNNER_SA_EMAIL`, `POLYMARKET_SERVICE_URL`, `LLM_SERVICE_URL` are hardcoded in each service's `deployment.yaml`.** They point at the well-known GCP-issued URLs (`https://<slug>-855896249283.europe-west3.run.app`).
 
 ## Tooling
 

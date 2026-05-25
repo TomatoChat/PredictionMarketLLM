@@ -58,7 +58,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v3
 
       - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker europe-west4-docker.pkg.dev --quiet
+        run: gcloud auth configure-docker europe-west3-docker.pkg.dev --quiet
 
       - name: Set up Python
         uses: actions/setup-python@v5
