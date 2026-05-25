@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import pulumi
 import pulumi_docker_build as docker_build
 
 
@@ -8,6 +9,7 @@ def build_image(
     service_dir: Path,
     build_context: Path,
     image_tag: str,
+    opts: pulumi.ResourceOptions | None = None,
 ) -> docker_build.Image:
     return docker_build.Image(
         f"{slug}-image",
@@ -18,4 +20,5 @@ def build_image(
         platforms=[docker_build.Platform.LINUX_AMD64],
         push=True,
         tags=[image_tag],
+        opts=opts,
     )

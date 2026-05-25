@@ -11,6 +11,7 @@ import logging
 from pathlib import Path
 
 import pulumi
+import pulumi_gcp as gcp
 
 from src.helpers import deploy_service, discover_services
 
@@ -25,7 +26,7 @@ gcp_config = pulumi.Config("gcp")
 project_id = gcp_config.require("project")
 project_id_number = config.require("projectIdNumber")
 region = gcp_config.get("region") or "europe-west3"
-image_repo = config.get("imageRepo") or "gcr.io"
+ar_repo_id = config.get("artifactRegistryRepoId") or "apis"
 
 deployer_dir = Path(__file__).parent
 apis_dir = Path(
@@ -43,6 +44,17 @@ pulumi.log.info(
     f"Deploying {len(service_dirs)} services: {[p.name for p in service_dirs]}"
 )
 
+ar_repo = gcp.artifactregistry.Repository(
+    "apis-ar-repo",
+    repository_id=ar_repo_id,
+    location=region,
+    project=project_id,
+    format="DOCKER",
+    description="Container images for the Cloud Run apis",
+)
+
+image_repo = f"{region}-docker.pkg.dev/{project_id}/{ar_repo_id}"
+
 for service_dir in service_dirs:
     deploy_service(
         service_dir=service_dir,
@@ -51,4 +63,5 @@ for service_dir in service_dirs:
         region=region,
         image_repo=image_repo,
         build_context=build_context,
+        depends_on=[ar_repo],
     )

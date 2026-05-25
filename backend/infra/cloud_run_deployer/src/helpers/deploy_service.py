@@ -17,6 +17,7 @@ def deploy_service(
     region: str,
     image_repo: str,
     build_context: Path,
+    depends_on: list[pulumi.Resource] | None = None,
 ) -> None:
     slug = service_dir.name
     deployment_config = DeploymentConfig.load_config(service_dir)
@@ -28,12 +29,13 @@ def deploy_service(
         }
     )
 
-    image_tag = f"{image_repo}/{project_id}/{deployment_config.service_slug}:latest"
+    image_tag = f"{image_repo}/{deployment_config.service_slug}:latest"
     image = build_image(
         slug=slug,
         service_dir=service_dir,
         build_context=build_context,
         image_tag=image_tag,
+        opts=pulumi.ResourceOptions(depends_on=depends_on) if depends_on else None,
     )
 
     container = build_container(
