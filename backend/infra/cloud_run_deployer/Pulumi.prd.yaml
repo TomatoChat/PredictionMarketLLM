@@ -3,4 +3,4 @@ config:
   gcp:region: europe-west4
   cloud-run-deployer:projectIdNumber: "855896249283"
   cloud-run-deployer:buildContext: ../../..
-  cloud-run-deployer:imageRepo: gcr.io
+  cloud-run-deployer:artifactRegistryRepoId: apis
