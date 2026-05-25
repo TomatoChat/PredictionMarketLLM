@@ -1,6 +1,4 @@
 from .HealthResponse import HealthResponse
-from .ListMarketsRequest import ListMarketsRequest
-from .ListMarketsResponse import ListMarketsResponse
 from .Market import Market
 from .MarketsPage import MarketsPage
 from .ReadyResponse import ReadyResponse
@@ -11,8 +9,6 @@ from .Token import Token
 
 __all__ = [
     "HealthResponse",
-    "ListMarketsRequest",
-    "ListMarketsResponse",
     "Market",
     "MarketsPage",
     "ReadyResponse",

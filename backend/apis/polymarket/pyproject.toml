@@ -12,5 +12,4 @@ dependencies = [
     "psycopg[binary]>=3.3",
     "google-cloud-tasks>=2.16",
     "google-cloud-secret-manager>=2.20",
-    "tqdm>=4.67",
 ]
