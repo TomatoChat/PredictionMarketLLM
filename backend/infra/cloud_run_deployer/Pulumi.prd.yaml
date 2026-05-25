@@ -1,6 +1,6 @@
 config:
   gcp:project: prediction-market-llm
-  gcp:region: europe-west4
+  gcp:region: europe-west3
   cloud-run-deployer:projectIdNumber: "855896249283"
   cloud-run-deployer:buildContext: ../../..
   cloud-run-deployer:artifactRegistryRepoId: apis
