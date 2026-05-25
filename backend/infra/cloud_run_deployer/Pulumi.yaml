@@ -2,5 +2,6 @@ name: cloud-run-deployer
 runtime:
   name: python
   options:
+    toolchain: pip
     virtualenv: .venv
 description: Deploy a Cloud Run service (image + service + optional CREMA scaledObject) via Pulumi.

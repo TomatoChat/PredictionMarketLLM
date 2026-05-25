@@ -14,8 +14,6 @@ from .LLMProvider import LLMProvider
 from supabase import LLMConfig
 from settings import get_settings
 
-settings = get_settings()
-
 
 class OpenAI(LLMProvider):
     """Calls the OpenAI Responses API with a per-market Pydantic ``text_format``.
@@ -30,7 +28,9 @@ class OpenAI(LLMProvider):
 
     @cached_property
     def client(self) -> openai.OpenAI:
-        return openai.OpenAI(api_key=settings.OPENAI_API_KEY.get_secret_value())
+        return openai.OpenAI(
+            api_key=get_settings().OPENAI_API_KEY.get_secret_value()
+        )
 
     def predict(
         self, context: MarketPromptContext, config: LLMConfig
