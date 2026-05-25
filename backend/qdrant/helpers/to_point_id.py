@@ -1,4 +1,4 @@
-from backend.supabase.consts import MARKET_ID_PREFIX
+from supabase.consts import MARKET_ID_PREFIX
 
 
 def to_point_id(market_id: str) -> str:

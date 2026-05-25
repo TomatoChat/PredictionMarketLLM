@@ -1,6 +1,6 @@
 from pydantic import BaseModel, ConfigDict
 
-from backend.supabase import Source
+from supabase import Source
 
 
 class MarketEmbeddingPoint(BaseModel):

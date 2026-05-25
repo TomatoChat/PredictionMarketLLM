@@ -30,6 +30,7 @@ exclude = [
     "backend/apis",
     "backend/crons",
     "backend/tasks",
+    "backend/qdrant",
 ]
 
 [tool.ruff]
