@@ -1,3 +1,4 @@
+from api_contracts import EmbedMarketRequest
 from embedder import Embedder
 from fastapi import APIRouter, HTTPException
 from qdrant import (
@@ -14,7 +15,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from supabase.queries import get_market
 
-from ..models import EmbedMarketRequest, EmbedMarketResponse
+from ..models import EmbedMarketResponse
 
 router = APIRouter()
 

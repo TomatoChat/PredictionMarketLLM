@@ -6,7 +6,6 @@ from .MarketsPage import MarketsPage
 from .ReadyResponse import ReadyResponse
 from .RewardRate import RewardRate
 from .Rewards import Rewards
-from .ScrapeRequest import ScrapeRequest
 from .ScrapeResponse import ScrapeResponse
 from .Token import Token
 
@@ -19,7 +18,6 @@ __all__ = [
     "ReadyResponse",
     "RewardRate",
     "Rewards",
-    "ScrapeRequest",
     "ScrapeResponse",
     "Token",
 ]

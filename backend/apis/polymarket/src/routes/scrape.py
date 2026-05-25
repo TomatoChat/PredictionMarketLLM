@@ -1,8 +1,7 @@
 import logging
 
-from EmbedMarketRequest import EmbedMarketRequest
+from api_contracts import EmbedMarketRequest, PredictRequest, ScrapeRequest
 from fastapi import APIRouter, HTTPException
-from PredictRequest import PredictRequest
 from settings import get_settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -10,7 +9,7 @@ from supabase.queries import get_active_llm_config_names
 from tasks import enqueue
 
 from ..helpers.scrape import END_CURSOR, scrape_polymarket_page
-from ..models import ScrapeRequest, ScrapeResponse
+from ..models import ScrapeResponse
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
