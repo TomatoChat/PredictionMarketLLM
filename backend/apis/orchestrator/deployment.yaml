@@ -6,7 +6,7 @@ memory: 128
 cpu: 0.5
 min_instances: 0
 max_instances: 1
-concurrency: 4
+concurrency: 1
 timeout: 60
 
 environment_variables:
