@@ -73,7 +73,7 @@ jobs:
           .venv/bin/pip install -r requirements.txt
 
       - name: Install Pulumi CLI
-        uses: pulumi/actions@v6
+        uses: pulumi/actions@v7
 
       - name: Pulumi up
         working-directory: backend/infra/cloud_run_deployer
@@ -113,7 +113,7 @@ jobs:
           .venv/bin/pip install -r requirements.txt
 
       - name: Install Pulumi CLI
-        uses: pulumi/actions@v6
+        uses: pulumi/actions@v7
 
       - name: Pulumi up
         working-directory: backend/infra/queue_deployer
@@ -153,7 +153,7 @@ jobs:
           .venv/bin/pip install -r requirements.txt
 
       - name: Install Pulumi CLI
-        uses: pulumi/actions@v6
+        uses: pulumi/actions@v7
 
       - name: Pulumi up
         working-directory: backend/infra/cron_deployer
