@@ -5,7 +5,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from supabase.queries import get_llm_config_by_name
 
-from ..classes import PredictorLLM
+from ..classes.PredictorLLM import PredictorLLM
 from ..models import PredictResponse
 
 router = APIRouter()
