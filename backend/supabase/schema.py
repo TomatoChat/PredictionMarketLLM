@@ -194,6 +194,35 @@ class MarketDaily(Base):
     )
 
 
+class OutcomeSnapshot(Base):
+    """Intraday snapshot of one outcome's implied probability.
+
+    Append-only time-series at scrape cadence; PK (outcome_id, captured_at).
+    """
+
+    __tablename__ = "outcome_snapshot"
+    __table_args__ = (
+        Index("ix_outcome_snapshot_outcome_captured", "outcome_id", "captured_at"),
+    )
+
+    outcome_id: Mapped[str] = mapped_column(
+        Text,
+        ForeignKey("outcome.id", ondelete="CASCADE"),
+        primary_key=True,
+        comment="Outcome being snapshotted (prefixed 'out_<uuid>').",
+    )
+    captured_at: Mapped[datetime] = mapped_column(
+        TIMESTAMP(timezone=True),
+        primary_key=True,
+        server_default=func.now(),
+        comment="Wall-clock timestamp when the scrape that produced this row ran.",
+    )
+    price: Mapped[Decimal | None] = mapped_column(
+        Numeric(10, 6),
+        comment="Implied probability for this outcome between 0 and 1 (last traded price at the moment of the scrape).",
+    )
+
+
 class LLMProvider(StrEnum):
     """LLM provider whose SDK is used to generate the prediction. The string value matches the Postgres enum label."""
 

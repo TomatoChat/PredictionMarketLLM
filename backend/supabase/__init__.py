@@ -1,4 +1,4 @@
-from backend.supabase.schema import (
+from .schema import (
     Base,
     LLMConfig,
     LLMPrediction,
@@ -6,6 +6,7 @@ from backend.supabase.schema import (
     Market,
     MarketDaily,
     Outcome,
+    OutcomeSnapshot,
     Source,
 )
 
@@ -17,5 +18,6 @@ __all__ = [
     "Market",
     "MarketDaily",
     "Outcome",
+    "OutcomeSnapshot",
     "Source",
 ]
