@@ -7,7 +7,7 @@ RUN pip install --no-cache-dir .
 
 COPY backend/apis/polymarket/main.py ./
 COPY backend/apis/polymarket/src ./src
-COPY backend/api_contracts ./api_contracts
+COPY backend/shared_models ./shared_models
 COPY backend/supabase ./supabase
 COPY backend/tasks ./tasks
 COPY settings ./settings

@@ -7,7 +7,7 @@ RUN pip install --no-cache-dir .
 
 COPY backend/apis/llm/main.py ./
 COPY backend/apis/llm/src ./src
-COPY backend/api_contracts ./api_contracts
+COPY backend/shared_models ./shared_models
 COPY backend/embedder ./embedder
 COPY backend/qdrant ./qdrant
 COPY backend/supabase ./supabase

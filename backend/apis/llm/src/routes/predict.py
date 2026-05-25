@@ -1,4 +1,4 @@
-from api_contracts import PredictRequest
+from shared_models import PredictRequest
 from fastapi import APIRouter, HTTPException
 from settings import get_settings
 from sqlalchemy import create_engine

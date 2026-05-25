@@ -1,4 +1,4 @@
-from api_contracts import EmbedMarketRequest
+from shared_models import EmbedMarketRequest
 from embedder import Embedder
 from fastapi import APIRouter, HTTPException
 from qdrant import (

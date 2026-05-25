@@ -1,6 +1,6 @@
 import logging
 
-from api_contracts import EmbedMarketRequest, PredictRequest, ScrapeRequest
+from shared_models import EmbedMarketRequest, PredictRequest, ScrapeRequest
 from fastapi import APIRouter, HTTPException
 from settings import get_settings
 from sqlalchemy import create_engine
