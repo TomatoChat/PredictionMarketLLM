@@ -77,7 +77,7 @@ jobs:
 
       - name: Pulumi up
         working-directory: backend/infra/cloud_run_deployer
-        run: pulumi up --yes --stack prd
+        run: pulumi up --yes --refresh --stack prd
 
   queue_deployer:
     name: Deploy Cloud Tasks queues
@@ -117,7 +117,7 @@ jobs:
 
       - name: Pulumi up
         working-directory: backend/infra/queue_deployer
-        run: pulumi up --yes --stack prd
+        run: pulumi up --yes --refresh --stack prd
 
   cron_deployer:
     name: Deploy Cloud Scheduler crons
@@ -157,4 +157,4 @@ jobs:
 
       - name: Pulumi up
         working-directory: backend/infra/cron_deployer
-        run: pulumi up --yes --stack prd
+        run: pulumi up --yes --refresh --stack prd
