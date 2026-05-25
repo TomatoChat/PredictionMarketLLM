@@ -5,8 +5,6 @@ import openai
 
 from settings import get_settings
 
-settings = get_settings()
-
 EMBEDDING_MODEL = "text-embedding-3-large"
 EMBEDDING_DIMS = 3072
 EMBEDDING_BATCH_SIZE = 100
@@ -15,16 +13,15 @@ EMBEDDING_BATCH_SIZE = 100
 class Embedder:
     """Thin wrapper over the OpenAI embeddings API.
 
-    One instance is constructed per scraper run; the SDK client is built lazily
-    on first use and cached on the instance (same pattern as
-    ``backend.llm.classes.providers.OpenAI.OpenAI``).
+    The SDK client is built lazily on first use and cached on the instance,
+    so the OpenAI api key is only resolved when ``embed()`` actually runs.
     """
 
     model: str = EMBEDDING_MODEL
 
     @cached_property
     def client(self) -> openai.OpenAI:
-        return openai.OpenAI(api_key=settings.OPENAI_API_KEY.get_secret_value())
+        return openai.OpenAI(api_key=get_settings().OPENAI_API_KEY.get_secret_value())
 
     def embed(self, texts: list[str]) -> list[list[float]]:
         """Return one ``EMBEDDING_DIMS``-length vector per input string, preserving order."""

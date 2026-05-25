@@ -23,7 +23,6 @@ from supabase.queries import (
 from settings import get_settings
 
 logger = logging.getLogger(__name__)
-settings = get_settings()
 
 
 class PredictorLLM:
@@ -67,7 +66,7 @@ class PredictorLLM:
     def seed_canonical_configs(cls) -> bool:
         """Idempotent upsert of every config returned by ``canonical_configs``."""
         try:
-            engine = create_engine(settings.database_url)
+            engine = create_engine(get_settings().database_url)
             configs = cls.canonical_configs()
 
             with Session(engine) as session:

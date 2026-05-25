@@ -7,11 +7,9 @@ RUN pip install --no-cache-dir .
 
 COPY backend/apis/orchestrator/main.py ./
 COPY backend/apis/orchestrator/src ./src
+COPY backend/shared_models ./shared_models
 COPY backend/tasks ./tasks
 COPY settings ./settings
-
-# Request models for queues this service produces tasks to.
-COPY backend/apis/polymarket/src/models/ScrapeRequest.py ./ScrapeRequest.py
 
 ENV PORT=8080
 EXPOSE 8080

@@ -1,5 +1,5 @@
+from shared_models import ScrapeRequest
 from fastapi import APIRouter, HTTPException
-from ScrapeRequest import ScrapeRequest
 from settings import get_settings
 from tasks import enqueue
 
