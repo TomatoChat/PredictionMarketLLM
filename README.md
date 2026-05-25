@@ -18,11 +18,62 @@ uv sync
 uv run pre-commit install
 ```
 
-## Crons
+## Architecture
 
-| Cron | Description |
+Event-driven pipeline running on GCP. A daily Cloud Scheduler cron kicks off the orchestrator; everything after that is Cloud Tasks fan-out between three Cloud Run services.
+
+```
+daily cron ──▶ orchestrator /prepare-scraping
+                  └─ enqueue 1 bootstrap task ──▶ scrape-markets-polymarket queue
+                                                     │
+                                                     ▼
+                                            polymarket /scrape (one page)
+                                                ├─ upsert markets to Supabase
+                                                ├─ enqueue next page  ──▶ scrape-markets-polymarket
+                                                ├─ per new market     ──▶ save-embeddings-markets queue ──▶ llm /embed-market
+                                                └─ per (market × cfg) ──▶ solve-market-llm queue       ──▶ llm /predict
+```
+
+### Services ([backend/apis/](backend/apis/))
+
+| Service | Purpose |
 | --- | --- |
-| [scrape_markets](backend/crons/scrape_markets/README.md) | Scrapes active prediction markets and upserts daily snapshots. |
-| [predict_markets](backend/crons/predict_markets/README.md) | Runs every active `llm_config` against every active market and stores the predictions. |
+| [`orchestrator`](backend/apis/orchestrator/) | `POST /prepare-scraping` — cron entry point. Enqueues the bootstrap scrape task. |
+| [`polymarket`](backend/apis/polymarket/) | `POST /scrape` — handles one Polymarket page, upserts to Supabase, fans out embed + predict tasks. |
+| [`llm`](backend/apis/llm/) | `POST /predict` (one PredictorLLM cycle) + `POST /embed-market` (one market embedding into Qdrant). |
 
-Both run from the [predict_markets.yml](.github/workflows/predict_markets.yml) GitHub Actions workflow, every 4 hours starting at midnight UTC (6×/day). The `predict` job depends on `polymarket` completing first.
+### Infrastructure ([backend/infra/](backend/infra/))
+
+Three Pulumi stacks, deployed in order by [.github/workflows/deploy.yml](.github/workflows/deploy.yml):
+
+| Stack | Manages |
+| --- | --- |
+| [`cloud_run_deployer`](backend/infra/cloud_run_deployer/) | Artifact Registry repo + the three Cloud Run services. |
+| [`queue_deployer`](backend/infra/queue_deployer/) | The shared `task-runner` SA + Cloud Tasks queues declared in [backend/queues/](backend/queues/) + IAM bindings. |
+| [`cron_deployer`](backend/infra/cron_deployer/) | Cloud Scheduler jobs declared in [backend/crons/](backend/crons/). |
+
+All resources live in `europe-west3` (Frankfurt).
+
+### Shared libs
+
+Each service's Dockerfile `COPY`s the libs it needs:
+
+| Lib | Used by |
+| --- | --- |
+| [`backend/supabase/`](backend/supabase/) | polymarket, llm — SQLAlchemy schema + queries |
+| [`backend/qdrant/`](backend/qdrant/) | llm — Qdrant client + collection schema |
+| [`backend/embedder/`](backend/embedder/) | llm — OpenAI embeddings wrapper |
+| [`backend/tasks/`](backend/tasks/) | orchestrator, polymarket — Cloud Tasks `enqueue()` helper |
+| [`backend/shared_models/`](backend/shared_models/) | all three — request models for inter-service tasks |
+| [`settings/`](settings/) | all three — `Settings` (pulls secrets from GSM when running on Cloud Run) |
+
+## Tooling
+
+```bash
+make check        # ruff lint+format + ty typecheck (also runs in CI)
+make lint
+make format
+make typecheck
+```
+
+See [CLAUDE.md](CLAUDE.md) for the agent-facing project guide with conventions, gotchas, and local dev recipes.
