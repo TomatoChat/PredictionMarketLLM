@@ -49,6 +49,7 @@ def deploy_service(
         name=deployment_config.service_slug,
         location=region,
         project=project_id,
+        deletion_protection=False,
         ingress=(
             "INGRESS_TRAFFIC_ALL"
             if deployment_config.is_public
