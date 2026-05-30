@@ -63,6 +63,16 @@ pulumi import qdrant-cloud:index/accountsCluster:AccountsCluster markets-cluster
 pulumi up --yes --refresh --stack prd
 ```
 
-This stack is **intentionally not yet wired into the deploy workflow** — auto
-`pulumi up` is unsafe until the existing cluster is imported. Once imported and
-verified, add a `qdrant_deployer` job to `deploy.yml` mirroring the other stacks.
+CI runs this as the **`qdrant_deployer` job** in
+[`.github/workflows/deploy.yml`](../../../.github/workflows/deploy.yml). It has no
+`needs` — Qdrant Cloud is independent of GCP Cloud Run, so it runs **in parallel**
+with `cloud_run_deployer`. The job installs the Terraform-bridged SDK
+(`pulumi package add …`) before `pulumi up`.
+
+> ⚠️ The job will **fail or create a duplicate cluster** until the two
+> prerequisites above are done: set the `QDRANT_CLOUD_API_KEY` repo secret, and
+> `pulumi import` the existing cluster into the `prd` stack. Do both before the
+> next deploy that touches this stack.
+
+Collections are reconciled separately by the **`qdrant_sync` job** (`python -m
+qdrant.sync`) in the same workflow.
