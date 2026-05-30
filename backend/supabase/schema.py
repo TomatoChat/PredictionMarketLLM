@@ -132,9 +132,9 @@ class Outcome(Base):
         nullable=False,
         comment="Human-readable outcome label ('Yes', 'No', team name, ...).",
     )
-    resolved_winner: Mapped[bool | None] = mapped_column(
+    market_winner: Mapped[bool | None] = mapped_column(
         Boolean,
-        comment="True if this outcome won at resolution; null while unresolved.",
+        comment="True if this outcome won at market resolution; null while unresolved.",
     )
 
 
