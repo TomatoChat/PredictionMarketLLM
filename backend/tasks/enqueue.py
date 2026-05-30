@@ -13,6 +13,7 @@ from pydantic import BaseModel
 from settings import get_settings
 
 from .get_client import get_client
+from .QUEUE_DISPATCH_DEADLINES import QUEUE_DISPATCH_DEADLINES
 
 logger = logging.getLogger(__name__)
 
@@ -38,9 +39,12 @@ def enqueue(
     ``dispatch_deadline_seconds`` is the per-task Cloud Tasks dispatch
     deadline — how long Cloud Tasks waits for the worker to respond before
     treating the attempt as failed (and retrying per the queue's retry config).
-    Valid range is 15..1800. Cloud Tasks default is 600. The receiving Cloud
-    Run service's ``timeout`` must be >= this value or the request is killed
-    before the deadline.
+    Valid range is 15..1800. When omitted, it defaults to the queue's entry in
+    ``QUEUE_DISPATCH_DEADLINES`` (the single source of truth, kept in lockstep
+    with each service's deployment.yaml ``timeout``); pass a value only to
+    override. If neither is set, Cloud Tasks applies its own 600s default. The
+    receiving Cloud Run service's ``timeout`` must be >= the effective deadline
+    or the request is killed before it fires.
 
     The task is signed with an OIDC token minted for the shared ``task-runner``
     service account so the receiving Cloud Run service can validate it via
@@ -65,6 +69,9 @@ def enqueue(
     )
 
     method = getattr(tasks_v2.HttpMethod, http_method.upper())
+
+    if dispatch_deadline_seconds is None:
+        dispatch_deadline_seconds = QUEUE_DISPATCH_DEADLINES.get(queue_name)
 
     if task_id is None:
         task_id = f"{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}-{uuid4().hex}"

@@ -34,7 +34,6 @@ def prepare_scraping() -> PrepareScrapingResponse:
         queue_name="scrape-markets-polymarket",
         target_url=f"{settings.POLYMARKET_SERVICE_URL.rstrip('/')}/scrape",
         payload=ScrapeRequest(cursor=POLYMARKET_INITIAL_CURSOR),
-        dispatch_deadline_seconds=600,
     )
 
     return PrepareScrapingResponse(enqueued=1)
