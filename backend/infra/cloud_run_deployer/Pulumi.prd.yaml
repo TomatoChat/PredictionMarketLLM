@@ -4,3 +4,4 @@ config:
   cloud-run-deployer:projectIdNumber: "855896249283"
   cloud-run-deployer:buildContext: ../../..
   cloud-run-deployer:artifactRegistryRepoId: apis
+encryptionsalt: v1:3DtIT1TT/Yc=:v1:9BDXwdeGgsrm7+uc:8TW3idciFF633RmExDiL0S/yiaM5Ng==
