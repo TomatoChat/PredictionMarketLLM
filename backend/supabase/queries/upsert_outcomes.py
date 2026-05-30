@@ -18,7 +18,7 @@ def upsert_outcomes(session: Session, rows: list[Outcome]) -> UpsertOutcomesResp
         index_elements=["id"],
         set_={
             "label": stmt.excluded.label,
-            "resolved_winner": stmt.excluded.resolved_winner,
+            "market_winner": stmt.excluded.market_winner,
         },
     )
     session.execute(stmt)

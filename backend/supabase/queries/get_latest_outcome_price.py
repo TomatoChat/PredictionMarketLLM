@@ -5,7 +5,7 @@ from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .. import OutcomeSnapshot
+from .. import MarketOutcomeSnapshot
 
 
 class GetLatestOutcomePriceResponse(BaseModel):
@@ -16,19 +16,19 @@ class GetLatestOutcomePriceResponse(BaseModel):
 def get_latest_outcome_price(
     session: Session, outcome_id: str, at: datetime | None = None
 ) -> GetLatestOutcomePriceResponse:
-    """Return the ``outcome_snapshot`` row for ``outcome_id`` closest to but not after ``at``.
+    """Return the ``market_outcome_snapshot`` row for ``outcome_id`` closest to but not after ``at``.
 
     When ``at`` is omitted, returns the most recent snapshot. Used at read time
     to recover the market-implied probability the picked outcome had at the
     moment of an ``llm_prediction`` — causally correct because we never look
     past the decision timestamp.
     """
-    stmt = select(OutcomeSnapshot.price, OutcomeSnapshot.captured_at).where(
-        OutcomeSnapshot.outcome_id == outcome_id
+    stmt = select(MarketOutcomeSnapshot.price, MarketOutcomeSnapshot.captured_at).where(
+        MarketOutcomeSnapshot.outcome_id == outcome_id
     )
     if at is not None:
-        stmt = stmt.where(OutcomeSnapshot.captured_at <= at)
-    stmt = stmt.order_by(OutcomeSnapshot.captured_at.desc()).limit(1)
+        stmt = stmt.where(MarketOutcomeSnapshot.captured_at <= at)
+    stmt = stmt.order_by(MarketOutcomeSnapshot.captured_at.desc()).limit(1)
 
     row = session.execute(stmt).one_or_none()
     if row is None:
