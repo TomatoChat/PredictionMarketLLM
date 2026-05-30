@@ -12,6 +12,9 @@ name: Deploy
 # queue_deployer and cron_deployer are independent of each other, so they fan
 # out and run in parallel once cloud_run_deployer succeeds.
 #
+# Qdrant is deployed separately (.github/workflows/deploy-qdrant.yml) — it lives
+# outside GCP, so it doesn't ride this workflow.
+#
 # Every `pulumi up` is idempotent — if nothing in a stack changed, that job is
 # a near-instant no-op.
 
