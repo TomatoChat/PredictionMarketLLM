@@ -1,3 +1,7 @@
+from .deactivate_llm_configs_except import (
+    DeactivateLLMConfigsExceptResponse,
+    deactivate_llm_configs_except,
+)
 from .get_active_llm_config_names import (
     GetActiveLLMConfigNamesResponse,
     get_active_llm_config_names,
@@ -45,6 +49,7 @@ from .upsert_outcomes import (
 )
 
 __all__ = [
+    "DeactivateLLMConfigsExceptResponse",
     "GetActiveLLMConfigNamesResponse",
     "GetActiveMarketIdsResponse",
     "GetLLMConfigByNameResponse",
@@ -57,6 +62,7 @@ __all__ = [
     "UpsertMarketDailyResponse",
     "UpsertMarketsResponse",
     "UpsertOutcomesResponse",
+    "deactivate_llm_configs_except",
     "get_active_llm_config_names",
     "get_active_market_ids",
     "get_latest_outcome_price",
