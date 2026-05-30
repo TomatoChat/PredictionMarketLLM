@@ -8,6 +8,7 @@ from uuid import uuid4
 
 from google.cloud import tasks_v2
 from google.protobuf import duration_pb2
+from observability import inject_trace_headers
 from pydantic import BaseModel
 from settings import get_settings
 
@@ -75,12 +76,14 @@ def enqueue(
         else None
     )
 
+    headers = inject_trace_headers({"Content-Type": "application/json"})
+
     task = tasks_v2.Task(
         name=task_name,
         http_request=tasks_v2.HttpRequest(
             http_method=method,
             url=target_url,
-            headers={"Content-Type": "application/json"},
+            headers=headers,
             body=payload.model_dump_json().encode("utf-8"),
             oidc_token=oidc,
         ),
