@@ -1,5 +1,8 @@
 target_service_slug: llm
 
+# Shares the llm service with save-embeddings-markets. llm capacity is
+# max_instances(1) × concurrency(8) = 8; keep this + save-embeddings-markets'
+# max_concurrent_dispatches summing to <= 8 (here 4 + 4).
 max_concurrent_dispatches: 4
 max_dispatches_per_second: 1.0
 

@@ -7,7 +7,9 @@ cpu: 1
 min_instances: 0
 max_instances: 1
 concurrency: 8
-timeout: 300
+# must stay >= dispatch deadline of save-embeddings-markets & solve-market-llm
+# (single source of truth: backend/tasks/QUEUE_DISPATCH_DEADLINES.py)
+timeout: 180
 
 environment_variables: {}
 
