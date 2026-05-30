@@ -1,7 +1,11 @@
 target_service_slug: llm
 
-max_concurrent_dispatches: 10
-max_dispatches_per_second: 5.0
+# This queue and solve-market-llm both target the llm service, whose capacity is
+# max_instances(1) × concurrency(8) = 8 concurrent requests. Keep the two queues'
+# max_concurrent_dispatches summing to <= 8 (here 4 + 4) so they don't overcommit
+# the single instance and trigger 429s / retry churn.
+max_concurrent_dispatches: 4
+max_dispatches_per_second: 4.0
 
 max_attempts: 5
 max_retry_duration: "3600s"
