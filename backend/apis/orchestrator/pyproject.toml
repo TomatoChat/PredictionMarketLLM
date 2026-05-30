@@ -9,4 +9,10 @@ dependencies = [
     "pydantic-settings>=2.6",
     "google-cloud-tasks>=2.16",
     "google-cloud-secret-manager>=2.20",
+    "opentelemetry-api>=1.26",
+    "opentelemetry-sdk>=1.26",
+    "opentelemetry-exporter-gcp-trace>=1.9",
+    "opentelemetry-instrumentation-fastapi>=0.47b0",
+    "opentelemetry-propagator-gcp>=1.9",
+    "google-cloud-logging>=3.10",
 ]
