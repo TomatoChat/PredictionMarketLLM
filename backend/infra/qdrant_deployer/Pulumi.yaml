@@ -1,0 +1,7 @@
+name: qdrant-deployer
+runtime:
+  name: python
+  options:
+    toolchain: pip
+    virtualenv: .venv
+description: Manage the Qdrant Cloud cluster (control plane) for this project as IaC. Collections/"tables" are NOT managed here — they live in backend/qdrant/schema.py and are reconciled by `python -m qdrant.sync` (see the qdrant_sync deploy job).
