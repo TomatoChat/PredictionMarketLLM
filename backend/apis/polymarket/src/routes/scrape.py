@@ -46,6 +46,7 @@ def scrape(request: ScrapeRequest) -> ScrapeResponse:
             queue_name="scrape-markets-polymarket",
             target_url=f"{polymarket_url.rstrip('/')}/scrape",
             payload=ScrapeRequest(cursor=next_cursor),
+            dispatch_deadline_seconds=600,
         )
 
     if new_market_ids:
@@ -61,6 +62,7 @@ def scrape(request: ScrapeRequest) -> ScrapeResponse:
                 queue_name="save-embeddings-markets",
                 target_url=embed_url,
                 payload=EmbedMarketRequest(market_id=market_id),
+                dispatch_deadline_seconds=300,
             )
             for config_name in config_names:
                 enqueue(
@@ -70,6 +72,7 @@ def scrape(request: ScrapeRequest) -> ScrapeResponse:
                         market_id=market_id,
                         config_name=config_name,
                     ),
+                    dispatch_deadline_seconds=300,
                 )
 
     return ScrapeResponse(
