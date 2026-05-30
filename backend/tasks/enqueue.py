@@ -3,6 +3,8 @@
 from __future__ import annotations
 
 import logging
+from datetime import UTC, datetime
+from uuid import uuid4
 
 from google.cloud import tasks_v2
 from pydantic import BaseModel
@@ -17,6 +19,7 @@ def enqueue(
     queue_name: str,
     target_url: str,
     payload: BaseModel,
+    task_id: str | None = None,
     http_method: str = "POST",
 ) -> tasks_v2.Task:
     """Create one HTTP task on ``queue_name`` targeting ``target_url``.
@@ -24,6 +27,10 @@ def enqueue(
     ``payload`` is a Pydantic model — its ``model_dump_json()`` becomes the
     task body, and the model class is the typing contract shared with the
     receiving route handler (which declares the same model as its request).
+
+    ``task_id`` lets the caller pick the Cloud Tasks task id (and therefore
+    the full task name). Must match ``[A-Za-z0-9_-]{1,500}``. If omitted, we
+    generate ``YYYYMMDDTHHMMSSZ-<uuid4hex>``.
 
     The task is signed with an OIDC token minted for the shared ``task-runner``
     service account so the receiving Cloud Run service can validate it via
@@ -49,7 +56,12 @@ def enqueue(
 
     method = getattr(tasks_v2.HttpMethod, http_method.upper())
 
+    if task_id is None:
+        task_id = f"{datetime.now(UTC).strftime('%Y%m%dT%H%M%SZ')}-{uuid4().hex}"
+    task_name = f"{parent}/tasks/{task_id}"
+
     task = tasks_v2.Task(
+        name=task_name,
         http_request=tasks_v2.HttpRequest(
             http_method=method,
             url=target_url,
