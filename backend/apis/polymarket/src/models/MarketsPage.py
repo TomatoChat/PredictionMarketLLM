@@ -4,20 +4,16 @@ from .Market import Market
 
 
 class MarketsPage(BaseModel):
+    """One page of the CLOB ``/markets`` paginated response."""
+
     model_config = ConfigDict(extra="allow")
 
     data: list[Market] = Field(
-        ...,
-        description="Markets returned in this page of the paginated /markets response.",
+        default_factory=list, description="Markets returned in this page."
     )
     next_cursor: str = Field(
-        ...,
-        description="Opaque cursor to pass back as next_cursor for the next page; equals 'LTE=' when no more pages remain.",
+        default="LTE=",
+        description="Cursor for the next page; equals 'LTE=' when no pages remain.",
     )
-    limit: int = Field(
-        ...,
-        description="Maximum number of markets the server is willing to return per page.",
-    )
-    count: int = Field(
-        ..., description="Number of markets actually returned in this page."
-    )
+    limit: int = Field(default=0, description="Max markets the server returns per page.")
+    count: int = Field(default=0, description="Number of markets in this page.")
