@@ -48,8 +48,11 @@ jobs:
         with:
           python-version: "3.14"
 
+      # sqlalchemy is needed because the qdrant lib transitively imports the
+      # supabase ORM (qdrant.models.MarketEmbeddingPoint uses supabase.Source).
+      # No psycopg / DB connection is needed — sync only talks to Qdrant.
       - name: Install Qdrant client dependencies
-        run: pip install qdrant-client pydantic pydantic-settings google-cloud-secret-manager
+        run: pip install qdrant-client pydantic pydantic-settings google-cloud-secret-manager sqlalchemy
 
       # Reconcile every collection declared in backend/qdrant/schema.py against the
       # cluster (create missing, reconcile payload indexes). Idempotent. Endpoint +
