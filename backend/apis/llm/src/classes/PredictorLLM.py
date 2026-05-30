@@ -15,6 +15,7 @@ from supabase.consts import (
     UUID_NAMESPACE,
 )
 from supabase.queries import (
+    deactivate_llm_configs_except,
     get_market,
     get_market_outcomes,
     insert_llm_predictions,
@@ -64,17 +65,28 @@ class PredictorLLM:
 
     @classmethod
     def seed_canonical_configs(cls) -> bool:
-        """Idempotent upsert of every config returned by ``canonical_configs``."""
+        """Reconcile ``llm_config`` against ``canonical_configs``.
+
+        Upserts every canonical config, then flips ``active = false`` on any
+        other row. This makes ``canonical_configs`` the source of truth: drop a
+        config from that list and the next seed retires it — no migration. Rows
+        are deactivated, never deleted, so append-only ``llm_prediction`` history
+        is preserved.
+        """
         try:
             engine = create_engine(get_settings().database_url)
             configs = cls.canonical_configs()
 
             with Session(engine) as session:
-                response = upsert_llm_configs(session, configs)
+                upserted = upsert_llm_configs(session, configs)
+                deactivated = deactivate_llm_configs_except(
+                    session, [c.id for c in configs]
+                )
                 session.commit()
 
             logger.info(
-                f"PredictorLLM.seed_canonical_configs - upserted {response.count} configs"
+                "PredictorLLM.seed_canonical_configs - "
+                f"upserted {upserted.count}, deactivated {deactivated.count} configs"
             )
             return True
         except Exception:
