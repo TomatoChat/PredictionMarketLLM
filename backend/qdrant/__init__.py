@@ -3,10 +3,11 @@ from .helpers import (
     ensure_collection,
     get_client,
     get_existing_point_ids,
+    sync_collections,
     to_point_id,
     upsert_market_embeddings,
 )
-from .schema import MARKETS
+from .schema import COLLECTIONS, MARKETS
 from .models import (
     CollectionSchema,
     MarketEmbeddingPoint,
@@ -15,6 +16,7 @@ from .models import (
 )
 
 __all__ = [
+    "COLLECTIONS",
     "EMBEDDING_DIMS",
     "MARKETS",
     "CollectionSchema",
@@ -24,6 +26,7 @@ __all__ = [
     "ensure_collection",
     "get_client",
     "get_existing_point_ids",
+    "sync_collections",
     "to_point_id",
     "upsert_market_embeddings",
 ]
