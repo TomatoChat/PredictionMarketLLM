@@ -30,13 +30,13 @@ backend/apis/<slug>/
     └── models/         # one model per file
 ```
 
-See [`backend/apis/example`](../../apis/example) for a working FastAPI scaffold.
+See [`backend/apis/polymarket`](../../apis/polymarket) for a working FastAPI scaffold.
 
 `.dockerignore` lives next to each service's `Dockerfile`. Make sure it excludes `.git/`, `__pycache__/`, `.venv/`, etc.
 
 ## Deploy
 
-CI deploys automatically on every push to `main` that touches `backend/apis/**` or this deployer — see [.github/workflows/deploy_apis.yml](../../../.github/workflows/deploy_apis.yml).
+CI deploys automatically on every push to `main` that touches `backend/apis/**` or this deployer — see [.github/workflows/deploy.yml](../../../.github/workflows/deploy.yml) (the `cloud_run_deployer` job, which runs first; the other stacks depend on it).
 
 To deploy locally:
 
@@ -66,5 +66,7 @@ Add a new service by creating `backend/apis/<slug>/` with the files listed above
 
 | Secret | What it is |
 |---|---|
-| `GCP_CREDENTIALS_JSON` | Service account JSON with `roles/run.admin`, `roles/iam.serviceAccountUser`, `roles/storage.admin`, and image-push permission on `imageRepo`. |
-| `PULUMI_ACCESS_TOKEN` | Pulumi Cloud access token for the stack's state backend. |
+| `GCP_CREDENTIALS_JSON` | Service account JSON with `roles/run.admin`, `roles/iam.serviceAccountUser`, `roles/storage.admin`, and image-push permission on `imageRepo`. Also used to access the Pulumi state bucket. |
+| `PULUMI_CONFIG_PASSPHRASE` | Passphrase for the self-managed Pulumi state backend (`PULUMI_BACKEND_URL=gs://prediction-market-llm-pulumi-state`). |
+
+> The state backend is **self-managed in GCS** (not Pulumi Cloud), so there is no `PULUMI_ACCESS_TOKEN`. The same two secrets apply to every deploy job (`queue_deployer`, `cron_deployer`, `qdrant_deployer`, `qdrant_sync`). The `qdrant_deployer` job additionally needs `QDRANT_CLOUD_API_KEY`.

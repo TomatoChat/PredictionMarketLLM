@@ -45,7 +45,7 @@ http_method: POST
 
 ## Deploy
 
-CI auto-deploys on push to `main` touching `backend/crons/**` or this deployer — see [.github/workflows/deploy_crons.yml](../../../.github/workflows/deploy_crons.yml).
+CI auto-deploys on push to `main` touching `backend/crons/**` or this deployer — see [.github/workflows/deploy.yml](../../../.github/workflows/deploy.yml) (the `cron_deployer` job, which runs after `cloud_run_deployer`).
 
 Locally:
 

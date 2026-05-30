@@ -56,7 +56,7 @@ The service's own [pyproject.toml](polymarket/pyproject.toml) lists every third-
 | Slug | Purpose | Routes |
 |---|---|---|
 | [orchestrator](orchestrator) | Cron entry point — fans out scrape work to queues | `POST /prepare-scraping` |
-| [polymarket](polymarket) | Polymarket page scrape (one cursor per call) + post-scrape fan-out to embedding & prediction queues | `GET /markets`, `POST /scrape` |
+| [polymarket](polymarket) | Polymarket CLOB page scrape (one cursor per call) + gamma-api volume/liquidity enrichment + post-scrape fan-out to embedding & prediction queues | `POST /scrape` |
 | [llm](llm) | One-shot LLM compute | `POST /predict`, `POST /embed-market` |
 
 The end-to-end flow is **cron → orchestrator → queues → services**:
