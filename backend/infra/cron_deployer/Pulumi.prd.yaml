@@ -1,3 +1,4 @@
 config:
   gcp:project: prediction-market-llm
   gcp:region: europe-west3
+encryptionsalt: v1:RqAZDtHF8H4=:v1:0yZBa/p+I/iZN4YJ:Bg9flLrfJb1077HVSy4B1kY2MyFkTg==
