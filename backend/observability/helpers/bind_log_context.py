@@ -1,4 +1,4 @@
-from .LogContext import LogContext
+from ..models.LogContext import LogContext
 
 
 def bind_log_context(**fields: object) -> None:

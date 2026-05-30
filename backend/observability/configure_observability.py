@@ -15,8 +15,7 @@ from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import BatchSpanProcessor
 from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 
-from .ConsoleFormatter import ConsoleFormatter
-from .LogContextFilter import LogContextFilter
+from .models import ConsoleFormatter, LogContextFilter
 
 
 def configure_observability(
