@@ -10,6 +10,7 @@ COPY backend/apis/polymarket/src ./src
 COPY backend/shared_models ./shared_models
 COPY backend/supabase ./supabase
 COPY backend/tasks ./tasks
+COPY backend/observability ./observability
 COPY settings ./settings
 
 ENV PORT=8080
