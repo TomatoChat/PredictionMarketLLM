@@ -11,3 +11,5 @@ MARKETS = CollectionSchema(
         PayloadIndex(field_name="source", field_schema=PayloadSchemaType.KEYWORD),
     ),
 )
+
+COLLECTIONS: tuple[CollectionSchema, ...] = (MARKETS,)
