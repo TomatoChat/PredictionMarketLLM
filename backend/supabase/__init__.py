@@ -4,9 +4,8 @@ from .schema import (
     LLMPrediction,
     LLMProvider,
     Market,
-    MarketDaily,
+    MarketOutcomeSnapshot,
     Outcome,
-    OutcomeSnapshot,
     Source,
 )
 
@@ -16,8 +15,7 @@ __all__ = [
     "LLMPrediction",
     "LLMProvider",
     "Market",
-    "MarketDaily",
+    "MarketOutcomeSnapshot",
     "Outcome",
-    "OutcomeSnapshot",
     "Source",
 ]

@@ -1,17 +1,17 @@
-from datetime import date, datetime
+from datetime import datetime
 from decimal import Decimal
 from enum import StrEnum
 from typing import Any
 
 from sqlalchemy import (
     Boolean,
-    Date,
     ForeignKey,
     Index,
     Integer,
     Numeric,
     Text,
     UniqueConstraint,
+    false,
     func,
 )
 from sqlalchemy import (
@@ -83,6 +83,24 @@ class Market(Base):
     end_date: Mapped[datetime | None] = mapped_column(
         TIMESTAMP(timezone=True), comment="Scheduled resolution deadline of the market."
     )
+    active: Mapped[bool] = mapped_column(
+        Boolean,
+        server_default=false(),
+        nullable=False,
+        comment="Current status: whether the market is active (not deleted/disabled) at last scrape.",
+    )
+    closed: Mapped[bool] = mapped_column(
+        Boolean,
+        server_default=false(),
+        nullable=False,
+        comment="Current status: whether the market has closed (resolved / no longer trading) at last scrape.",
+    )
+    archived: Mapped[bool] = mapped_column(
+        Boolean,
+        server_default=false(),
+        nullable=False,
+        comment="Current status: whether the market is archived (hidden from default listings) at last scrape.",
+    )
     raw: Mapped[dict] = mapped_column(
         JSONB,
         nullable=False,
@@ -132,77 +150,27 @@ class Outcome(Base):
         nullable=False,
         comment="Human-readable outcome label ('Yes', 'No', team name, ...).",
     )
-    resolved_winner: Mapped[bool | None] = mapped_column(
+    market_winner: Mapped[bool | None] = mapped_column(
         Boolean,
-        comment="True if this outcome won at resolution; null while unresolved.",
+        comment="True if this outcome won at market resolution; null while unresolved.",
     )
 
 
-class MarketDaily(Base):
-    """Daily snapshot of an outcome's price plus market-level volume/status. Append-only time-series, PK (outcome_id, snapshot_date)."""
-
-    __tablename__ = "market_daily"
-
-    outcome_id: Mapped[str] = mapped_column(
-        Text,
-        ForeignKey("outcome.id", ondelete="CASCADE"),
-        primary_key=True,
-        comment="Outcome being snapshotted (prefixed 'out_<uuid>').",
-    )
-    snapshot_date: Mapped[date] = mapped_column(
-        Date,
-        primary_key=True,
-        comment="Logical date of the snapshot (one row per outcome per day).",
-    )
-    captured_at: Mapped[datetime] = mapped_column(
-        TIMESTAMP(timezone=True),
-        server_default=func.now(),
-        nullable=False,
-        comment="Wall-clock timestamp when the scrape that produced this row ran.",
-    )
-    price: Mapped[Decimal | None] = mapped_column(
-        Numeric(10, 6),
-        comment="Implied probability for this outcome between 0 and 1 (last traded price).",
-    )
-    volume: Mapped[Decimal | None] = mapped_column(
-        Numeric(20, 6),
-        comment="Market-level cumulative volume reported by the source; duplicated across the market's outcome rows.",
-    )
-    liquidity: Mapped[Decimal | None] = mapped_column(
-        Numeric(20, 6),
-        comment="Market-level liquidity reported by the source; duplicated across the market's outcome rows.",
-    )
-    active: Mapped[bool] = mapped_column(
-        Boolean,
-        nullable=False,
-        comment="Whether the market was active at the time of the snapshot.",
-    )
-    closed: Mapped[bool] = mapped_column(
-        Boolean,
-        nullable=False,
-        comment="Whether the market was closed at the time of the snapshot.",
-    )
-    archived: Mapped[bool] = mapped_column(
-        Boolean,
-        nullable=False,
-        comment="Whether the market was archived at the time of the snapshot.",
-    )
-    accepting_orders: Mapped[bool] = mapped_column(
-        Boolean,
-        nullable=False,
-        comment="Whether the order book was accepting orders at the time of the snapshot.",
-    )
-
-
-class OutcomeSnapshot(Base):
-    """Intraday snapshot of one outcome's implied probability.
+class MarketOutcomeSnapshot(Base):
+    """Intraday snapshot of one outcome's implied probability plus market-level volume/liquidity.
 
     Append-only time-series at scrape cadence; PK (outcome_id, captured_at).
+    Only written for tradeable markets (active, not closed, not archived).
+    Volume/liquidity are market-level values duplicated across the market's outcome rows.
     """
 
-    __tablename__ = "outcome_snapshot"
+    __tablename__ = "market_outcome_snapshot"
     __table_args__ = (
-        Index("ix_outcome_snapshot_outcome_captured", "outcome_id", "captured_at"),
+        Index(
+            "ix_market_outcome_snapshot_outcome_captured",
+            "outcome_id",
+            "captured_at",
+        ),
     )
 
     outcome_id: Mapped[str] = mapped_column(
@@ -220,6 +188,14 @@ class OutcomeSnapshot(Base):
     price: Mapped[Decimal | None] = mapped_column(
         Numeric(10, 6),
         comment="Implied probability for this outcome between 0 and 1 (last traded price at the moment of the scrape).",
+    )
+    volume: Mapped[Decimal | None] = mapped_column(
+        Numeric(20, 6),
+        comment="Market-level cumulative volume reported by the source; duplicated across the market's outcome rows.",
+    )
+    liquidity: Mapped[Decimal | None] = mapped_column(
+        Numeric(20, 6),
+        comment="Market-level liquidity reported by the source; duplicated across the market's outcome rows.",
     )
 
 
