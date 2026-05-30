@@ -1,3 +1,7 @@
+# CLAUDE.md is authored by hand with intentional long (unwrapped) prose lines —
+# keep every hook off it so nothing rewraps or trims it.
+exclude: ^CLAUDE\.md$
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0

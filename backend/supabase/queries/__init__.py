@@ -27,17 +27,13 @@ from .insert_llm_predictions import (
     InsertLLMPredictionsResponse,
     insert_llm_predictions,
 )
-from .insert_outcome_snapshots import (
-    InsertOutcomeSnapshotsResponse,
-    insert_outcome_snapshots,
+from .insert_market_outcome_snapshots import (
+    InsertMarketOutcomeSnapshotsResponse,
+    insert_market_outcome_snapshots,
 )
 from .upsert_llm_configs import (
     UpsertLLMConfigsResponse,
     upsert_llm_configs,
-)
-from .upsert_market_daily import (
-    UpsertMarketDailyResponse,
-    upsert_market_daily,
 )
 from .upsert_markets import (
     UpsertMarketsResponse,
@@ -57,9 +53,8 @@ __all__ = [
     "GetMarketResponse",
     "GetOutcomesForMarketResponse",
     "InsertLLMPredictionsResponse",
-    "InsertOutcomeSnapshotsResponse",
+    "InsertMarketOutcomeSnapshotsResponse",
     "UpsertLLMConfigsResponse",
-    "UpsertMarketDailyResponse",
     "UpsertMarketsResponse",
     "UpsertOutcomesResponse",
     "deactivate_llm_configs_except",
@@ -70,9 +65,8 @@ __all__ = [
     "get_market",
     "get_market_outcomes",
     "insert_llm_predictions",
-    "insert_outcome_snapshots",
+    "insert_market_outcome_snapshots",
     "upsert_llm_configs",
-    "upsert_market_daily",
     "upsert_markets",
     "upsert_outcomes",
 ]

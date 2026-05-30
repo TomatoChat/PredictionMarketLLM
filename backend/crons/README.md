@@ -16,20 +16,20 @@ If you need new logic, add it as a route on a service under [../apis](../apis). 
 
 ```
 backend/crons/
-└── predict-markets.yaml
+└── prepare-scraping.yaml
 ```
 
-The filename **is** the cron slug. Cloud Scheduler creates a job named `cron-<slug>` (e.g. `cron-predict-markets`).
+The filename **is** the cron slug. Cloud Scheduler creates a job named `cron-<slug>` (e.g. `cron-prepare-scraping`).
 
 ## File schema
 
-Example [predict-markets.yaml](predict-markets.yaml):
+Example [prepare-scraping.yaml](prepare-scraping.yaml):
 
 ```yaml
-schedule: "0 */4 * * *"
+schedule: "0 0 * * *"
 timezone: UTC
-target_service_slug: predict-markets   # must match a service_slug in backend/apis/<svc>/deployment.yaml
-target_path: /run
+target_service_slug: orchestrator      # must match a service_slug in backend/apis/<svc>/deployment.yaml
+target_path: /prepare-scraping
 http_method: POST
 # target_body: '{"dry_run": false}'    # optional JSON body
 ```
@@ -43,7 +43,7 @@ http_method: POST
 | `http_method` | no | `POST` | GET / POST / PUT / PATCH / DELETE. |
 | `target_body` | no | — | Optional JSON string. When set, `Content-Type: application/json` is added automatically. |
 
-The full schema lives in [QueueConfig.py](../infra/cron_deployer/src/models/CronConfig.py) — sorry, [CronConfig.py](../infra/cron_deployer/src/models/CronConfig.py).
+The full schema lives in [CronConfig.py](../infra/cron_deployer/src/models/CronConfig.py).
 
 ## Auth
 
@@ -51,7 +51,7 @@ Cloud Scheduler signs every dispatch with an OIDC token minted for a shared serv
 
 ## Deploy
 
-Push to `main` touching `backend/crons/**` — [.github/workflows/deploy_crons.yml](../../.github/workflows/deploy_crons.yml) runs `pulumi up` against [../infra/cron_deployer](../infra/cron_deployer) and reconciles every cron in one pass.
+Push to `main` touching `backend/crons/**` — [.github/workflows/deploy.yml](../../.github/workflows/deploy.yml) runs `pulumi up` against [../infra/cron_deployer](../infra/cron_deployer) and reconciles every cron in one pass.
 
 Locally:
 
@@ -70,6 +70,6 @@ pulumi up
 
 ## Why not native cron containers?
 
-Cloud Run **Jobs** (one-shot containers) are also a valid cron pattern in GCP. We deliberately do *not* use them here: the cron's logic always lives in a service anyway (so we can also invoke it ad-hoc via HTTP — the predict_markets `POST /run` is callable for manual reruns, debugging, or chained workflows). Keeping crons as thin schedulers makes the architecture uniform.
+Cloud Run **Jobs** (one-shot containers) are also a valid cron pattern in GCP. We deliberately do *not* use them here: the cron's logic always lives in a service anyway (so we can also invoke it ad-hoc via HTTP — the orchestrator's `POST /prepare-scraping` is callable for manual reruns, debugging, or chained workflows). Keeping crons as thin schedulers makes the architecture uniform.
 
 If you ever need a one-shot job that has *no* HTTP entry point, add it as a route on a new service and point a cron at it.

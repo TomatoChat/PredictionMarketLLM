@@ -1,10 +1,8 @@
-from datetime import UTC, datetime
-
 from pydantic import BaseModel
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from .. import Market, MarketDaily, Outcome
+from .. import Market
 
 
 class GetActiveMarketIdsResponse(BaseModel):
@@ -12,16 +10,12 @@ class GetActiveMarketIdsResponse(BaseModel):
 
 
 def get_active_market_ids(session: Session) -> GetActiveMarketIdsResponse:
-    """Market ids whose latest snapshot (today's scrape) is active and not closed."""
-    today = datetime.now(UTC).date()
+    """Market ids that are tradeable as of the last scrape (active, open, not archived)."""
     stmt = (
         select(Market.id)
-        .join(Outcome, Outcome.market_id == Market.id)
-        .join(MarketDaily, MarketDaily.outcome_id == Outcome.id)
-        .where(MarketDaily.snapshot_date == today)
-        .where(MarketDaily.active.is_(True))
-        .where(MarketDaily.closed.is_(False))
-        .distinct()
+        .where(Market.active.is_(True))
+        .where(Market.closed.is_(False))
+        .where(Market.archived.is_(False))
     )
     return GetActiveMarketIdsResponse(
         market_ids=list(session.execute(stmt).scalars().all())

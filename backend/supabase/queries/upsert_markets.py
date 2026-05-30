@@ -21,6 +21,9 @@ def upsert_markets(session: Session, rows: list[Market]) -> UpsertMarketsRespons
             "description": stmt.excluded.description,
             "slug": stmt.excluded.slug,
             "end_date": stmt.excluded.end_date,
+            "active": stmt.excluded.active,
+            "closed": stmt.excluded.closed,
+            "archived": stmt.excluded.archived,
             "last_seen_at": stmt.excluded.last_seen_at,
         },
     )

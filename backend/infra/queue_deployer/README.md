@@ -45,7 +45,7 @@ max_doublings: 4
 
 ## Deploy
 
-CI auto-deploys on push to `main` touching `backend/queues/**` or this deployer — see [.github/workflows/deploy_queues.yml](../../../.github/workflows/deploy_queues.yml).
+CI auto-deploys on push to `main` touching `backend/queues/**` or this deployer — see [.github/workflows/deploy.yml](../../../.github/workflows/deploy.yml) (the `queue_deployer` job, which runs after `cloud_run_deployer`).
 
 Locally:
 
