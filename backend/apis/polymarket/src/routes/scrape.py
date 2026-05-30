@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 from supabase.queries import get_active_llm_config_names
 from tasks import enqueue
 
-from ..helpers.scrape import END_CURSOR, scrape_polymarket_page
+from ..helpers.scrape import scrape_polymarket_page
 from ..models import ScrapeResponse
 
 router = APIRouter()
@@ -21,12 +21,12 @@ logger = logging.getLogger(__name__)
     response_model_exclude_none=True,
 )
 def scrape(request: ScrapeRequest) -> ScrapeResponse:
-    """Scrape one Polymarket page and fan out embedding + prediction tasks.
+    """Scrape one CLOB page and fan out embedding + prediction tasks.
 
-    Chains the queue: if the API returns a non-terminal ``next_cursor``,
-    we enqueue another scrape task. Per newly upserted market we enqueue:
-    one ``save-embeddings-markets`` task, plus one ``solve-market-llm`` task
-    per active llm_config.
+    Chains the queue: while the API returns a non-terminal ``next_cursor`` we
+    enqueue the next scrape task. Per newly upserted *tradeable* market we
+    enqueue one ``save-embeddings-markets`` task, plus one ``solve-market-llm``
+    task per active llm_config.
     """
     settings = get_settings()
     polymarket_url = settings.POLYMARKET_SERVICE_URL
@@ -41,12 +41,11 @@ def scrape(request: ScrapeRequest) -> ScrapeResponse:
     if not ok:
         raise HTTPException(status_code=500, detail="scrape page failed; see logs")
 
-    if next_cursor and next_cursor != END_CURSOR:
+    if next_cursor is not None:
         enqueue(
             queue_name="scrape-markets-polymarket",
             target_url=f"{polymarket_url.rstrip('/')}/scrape",
             payload=ScrapeRequest(cursor=next_cursor),
-            dispatch_deadline_seconds=600,
         )
 
     if new_market_ids:
@@ -62,7 +61,6 @@ def scrape(request: ScrapeRequest) -> ScrapeResponse:
                 queue_name="save-embeddings-markets",
                 target_url=embed_url,
                 payload=EmbedMarketRequest(market_id=market_id),
-                dispatch_deadline_seconds=300,
             )
             for config_name in config_names:
                 enqueue(
@@ -72,7 +70,6 @@ def scrape(request: ScrapeRequest) -> ScrapeResponse:
                         market_id=market_id,
                         config_name=config_name,
                     ),
-                    dispatch_deadline_seconds=300,
                 )
 
     return ScrapeResponse(
