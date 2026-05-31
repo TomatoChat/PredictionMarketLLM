@@ -66,7 +66,7 @@ A "config" here = one row in the `llm_config` table, declared in [`PredictorLLM.
    uv run python -c "
    from sqlalchemy import create_engine
    from sqlalchemy.orm import Session
-   from backend.supabase.queries import get_active_market_ids
+   from backend.db.queries import get_active_market_ids
    from settings import get_settings
    with Session(create_engine(get_settings().database_url)) as s:
        print(get_active_market_ids(s).market_ids[:3])
@@ -100,5 +100,5 @@ A "config" here = one row in the `llm_config` table, declared in [`PredictorLLM.
 ## Reference
 
 - [`PredictorLLM.canonical_configs`](../../../backend/apis/llm/src/classes/PredictorLLM.py) — where the configs live.
-- [`backend/supabase/schema.py:205`](../../../backend/supabase/schema.py) — the `LLMConfig` ORM model with column comments explaining every field.
+- [`backend/db/schema.py:205`](../../../backend/db/schema.py) — the `LLMConfig` ORM model with column comments explaining every field.
 - [`backend/crons/predict_markets/README.md`](../../../backend/crons/predict_markets/README.md) — how the cron consumes configs.
