@@ -58,14 +58,12 @@ cluster = qdrant_cloud.AccountsCluster(
     },
 )
 
-database_api_key = qdrant_cloud.AccountsDatabaseApiKeyV2(
-    "markets-db-api-key",
-    cluster_id=cluster.id,
-    name="prediction-market-llm",
-)
+# The cluster's data-plane API key (`QDRANT_API_KEY` in GSM) is NOT managed
+# here — it was created in the Qdrant Cloud UI when the cluster was provisioned
+# and lives in Secret Manager. Managing it from Pulumi would either generate
+# a second unused key or require importing the existing one (which Qdrant
+# Cloud's API doesn't allow because the key value can't be read back after
+# creation). Rotations are a UI-side action.
 
 pulumi.export("cluster_id", cluster.id)
 pulumi.export("cluster_url", cluster.url)
-# Secret: feed this into Secret Manager (QDRANT_ENDPOINT / QDRANT_API_KEY) that
-# the services + the qdrant_sync job read.
-pulumi.export("database_api_key", pulumi.Output.secret(database_api_key.key))

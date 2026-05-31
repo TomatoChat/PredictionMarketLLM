@@ -1,9 +1,9 @@
 config:
-  qdrant-cloud:accountId: 1c03bbb5-ed8a-491e-ab91-7c41c9410d71
+  qdrant-cloud:accountId: 0577f26e-e89a-4680-8428-17201ca9f0af
   qdrant-deployer:cloudProvider: gcp
   qdrant-deployer:cloudRegion: europe-west3
   qdrant-deployer:clusterName: prediction-market-llm
   qdrant-deployer:numberOfNodes: "1"
   qdrant-cloud:apiKey:
-    secure: v1:RRk4L5dQ2W69K8Pu:9ttx4duyl08i/ibGj0ZuzlEVKd5ib4WqHcj/9Zik7+mMd5PigG3BYiJYfvXXYWkpvPjDAkxPlGpWM0UdUaCSQ0hL+8JWAXKwUI634klpOWQNLihDJnj+8cEjGyfKbPzsXUo6ths95Qqwq14=
+    secure: v1:/AJc3G4XsGeZDUjC:tK177KyLwtF/Dzub8V90seU+FvWwt6zJkLjXSlHH4KmijV4JzjmteDXpb6PLq0TNuQzbV8+vvJqL2lfpzTWWvee61ZEXVgipBWSw0iLHIV0F2n3YuoBsg/u6lzkDwuOCuaIlpxuOofMRsPM=
 encryptionsalt: v1:LOmJIkIhdZ0=:v1:26c17SQZ9qR8ambK:taYBCbTODXt8qqqxwN/OK0++OsWJrw==
