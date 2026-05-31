@@ -81,9 +81,7 @@ def upgrade() -> None:
         ),
         sa.UniqueConstraint("source", "source_market_id", name="uq_market_source"),
     )
-    op.create_index(
-        "ix_market_source_last_seen", "market", ["source", "last_seen_at"]
-    )
+    op.create_index("ix_market_source_last_seen", "market", ["source", "last_seen_at"])
 
     op.create_table(
         "outcome",
@@ -97,9 +95,7 @@ def upgrade() -> None:
         sa.Column("source_outcome_id", sa.Text(), nullable=False),
         sa.Column("label", sa.Text(), nullable=False),
         sa.Column("market_winner", sa.Boolean(), nullable=True),
-        sa.UniqueConstraint(
-            "market_id", "source_outcome_id", name="uq_outcome_market"
-        ),
+        sa.UniqueConstraint("market_id", "source_outcome_id", name="uq_outcome_market"),
     )
     op.create_index("ix_outcome_market_id", "outcome", ["market_id"])
 
