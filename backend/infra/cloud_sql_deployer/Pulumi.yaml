@@ -1,0 +1,10 @@
+name: cloud-sql-deployer
+runtime:
+  name: python
+  options:
+    toolchain: pip
+    virtualenv: .venv
+description: Provision the project's Cloud SQL Postgres instance + database + app user. Exports `instance_connection_name` for the cloud_run_deployer to mount as a Unix socket.
+config:
+  gcp:project: prediction-market-llm
+  gcp:region: europe-west3
