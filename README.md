@@ -6,17 +6,28 @@
 
 Let LLMs play on prediction markets.
 
+Python 3.14, [uv](https://docs.astral.sh/uv/), SQLAlchemy 2 ORM, Cloud SQL Postgres (Alembic-driven migrations), Qdrant Cloud for embeddings, GCP Cloud Run + Cloud Tasks + Cloud Scheduler, Pulumi for infra.
+
 ## Requirements
 
 - Python `>=3.14`
 - [uv](https://docs.astral.sh/uv/)
+- [Docker](https://www.docker.com/) (for the local Postgres)
 
 ## Setup
 
 ```bash
-uv sync
+uv sync                                                            # repo-level deps + pre-commit
 uv run pre-commit install
+
+docker compose up postgres -d                                      # local Postgres (mirrors Cloud SQL)
+
+cd backend/apis/llm                                                # any service's venv has alembic
+uv sync
+uv run alembic -c ../../db/alembic.ini upgrade head                # create the schema locally
 ```
+
+Drop a `.env` at the repo root with the DB / OpenAI / Qdrant creds (see [CLAUDE.md](CLAUDE.md) for the full list).
 
 ## Architecture
 
@@ -55,6 +66,16 @@ Five Pulumi stacks, deployed by [.github/workflows/deploy.yml](.github/workflows
 | [`qdrant_deployer`](backend/infra/qdrant_deployer/) | The Qdrant Cloud **cluster** (control plane). Collections are *not* managed here — they live in [backend/qdrant/schema.py](backend/qdrant/schema.py) and are reconciled by the `qdrant_sync` deploy job (`python -m qdrant.sync`). |
 
 GCP resources live in `europe-west3` (Frankfurt); the Qdrant Cloud cluster is in the matching region.
+
+### Storage
+
+| What | Where | Owned by |
+| --- | --- | --- |
+| Relational data (markets, outcomes, snapshots, configs, predictions) | Cloud SQL Postgres (`prediction-market` instance, default `postgres` DB) | Schema in [backend/db/schema.py](backend/db/schema.py); migrations in [backend/db/alembic/](backend/db/alembic/) applied automatically by the `alembic_migrate` deploy job |
+| Embeddings | Qdrant Cloud cluster | Schemas in [backend/qdrant/schema.py](backend/qdrant/schema.py); applied by `python -m qdrant.sync` in the `qdrant_sync` deploy job |
+| Raw scraped payloads + raw LLM responses | GCS bucket (`prediction-market-llm-raw`) | Written by the polymarket + llm services via [`RawStore`](backend/raw_store/RawStore.py); pointers stored in `market.raw_path` / `llm_prediction.raw_response_path` |
+
+The DB migration loop: edit `schema.py` → `cd backend/apis/llm && uv run alembic -c ../../db/alembic.ini revision --autogenerate -m "..."` → review the generated revision → commit. The next deploy applies it through the Cloud SQL Auth Proxy.
 
 ### Shared libs
 
