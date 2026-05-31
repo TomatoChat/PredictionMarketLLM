@@ -5,3 +5,9 @@ runtime:
     toolchain: pip
     virtualenv: .venv
 description: Manage the Qdrant Cloud cluster (control plane) for this project as IaC. Collections/"tables" are NOT managed here — they live in backend/qdrant/schema.py and are reconciled by `python -m qdrant.sync` (see the qdrant_sync deploy job).
+packages:
+  qdrant-cloud:
+    source: terraform-provider
+    version: 1.1.3
+    parameters:
+      - registry.terraform.io/qdrant/qdrant-cloud
