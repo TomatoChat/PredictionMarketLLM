@@ -1,0 +1,7 @@
+config:
+  qdrant-cloud:accountId: 1c03bbb5-ed8a-491e-ab91-7c41c9410d71
+  qdrant-deployer:cloudProvider: gcp
+  qdrant-deployer:cloudRegion: europe-west3
+  qdrant-deployer:clusterName: prediction-market-llm
+  qdrant-deployer:numberOfNodes: "1"
+encryptionsalt: v1:LOmJIkIhdZ0=:v1:26c17SQZ9qR8ambK:taYBCbTODXt8qqqxwN/OK0++OsWJrw==
