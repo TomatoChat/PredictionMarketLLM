@@ -4,4 +4,6 @@ config:
   qdrant-deployer:cloudRegion: europe-west3
   qdrant-deployer:clusterName: prediction-market-llm
   qdrant-deployer:numberOfNodes: "1"
+  qdrant-cloud:apiKey:
+    secure: v1:RRk4L5dQ2W69K8Pu:9ttx4duyl08i/ibGj0ZuzlEVKd5ib4WqHcj/9Zik7+mMd5PigG3BYiJYfvXXYWkpvPjDAkxPlGpWM0UdUaCSQ0hL+8JWAXKwUI634klpOWQNLihDJnj+8cEjGyfKbPzsXUo6ths95Qqwq14=
 encryptionsalt: v1:LOmJIkIhdZ0=:v1:26c17SQZ9qR8ambK:taYBCbTODXt8qqqxwN/OK0++OsWJrw==
