@@ -47,7 +47,7 @@ instance = gcp.sql.DatabaseInstance(
         availability_type="ZONAL",
         disk_type="PD_SSD",
         disk_size=disk_size,
-        disk_autoresize=True,
+        disk_autoresize=False,
         # IAM database authentication: allows GCP identities to auth alongside
         # password auth (we still use password auth via DB_PASSWORD). Free for
         # later use; preserves what GCP set during instance creation.
@@ -58,13 +58,24 @@ instance = gcp.sql.DatabaseInstance(
             ),
         ],
         backup_configuration=gcp.sql.DatabaseInstanceSettingsBackupConfigurationArgs(
-            enabled=True,
+            enabled=False,
             point_in_time_recovery_enabled=False,
-            start_time="03:00",
+            start_time="16:00",
         ),
         ip_configuration=gcp.sql.DatabaseInstanceSettingsIpConfigurationArgs(
             ipv4_enabled=True,
         ),
+        # Match the free-trial default — re-asserting prevents Pulumi from
+        # trying to clear it on refresh.
+        enable_dataplex_integration=True,
+        # `final_backup_config` is left unmanaged: the GCP-side default
+        # (`enabled=false, retention_days=0`) clashes with the Pulumi schema's
+        # `retention_days >= 1` validation, AND the API rejects any non-zero
+        # retention when disabled. Ignored in `opts.ignore_changes` so refresh
+        # drift doesn't trigger spurious updates.
+    ),
+    opts=pulumi.ResourceOptions(
+        ignore_changes=["settings.finalBackupConfig"],
     ),
 )
 
