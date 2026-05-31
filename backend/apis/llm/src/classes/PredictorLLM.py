@@ -2,19 +2,20 @@ import logging
 from datetime import UTC, datetime
 from uuid import uuid5
 
+from raw_store import RawStore
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 
 from ..models import MarketPromptContext, ModelSnapshot
 from ..models.LLMRegistry import LLMRegistry
-from supabase import LLMConfig, LLMPrediction
-from supabase import LLMProvider as LLMProviderEnum
-from supabase.consts import (
+from db import LLMConfig, LLMPrediction
+from db import LLMProvider as LLMProviderEnum
+from db.consts import (
     LLM_CONFIG_ID_PREFIX,
     LLM_PREDICTION_ID_PREFIX,
     UUID_NAMESPACE,
 )
-from supabase.queries import (
+from db.queries import (
     deactivate_llm_configs_except,
     get_market,
     get_market_outcomes,
@@ -152,22 +153,37 @@ class PredictorLLM:
             )
             return True
 
+        prediction_id = f"{LLM_PREDICTION_ID_PREFIX}{
+            uuid5(
+                UUID_NAMESPACE,
+                f'{self.config.id}:{market_id}:{now.isoformat()}',
+            )
+        }"
+
+        # raw_response is an escape-hatch blob -> offload it to GCS, keeping only
+        # the path in Postgres. An upload failure must not lose the prediction
+        # row (the structured columns are what scoring reads), so fall back to None.
+        try:
+            raw_response_path = RawStore().put_json(
+                f"prediction/{prediction_id}.json.gz", result.raw_response
+            )
+        except Exception:
+            logger.exception(
+                f"PredictorLLM.predict - raw_response upload failed for prediction={prediction_id}"  # noqa: E501
+            )
+            raw_response_path = None
+
         insert_llm_predictions(
             session,
             [
                 LLMPrediction(
-                    id=f"{LLM_PREDICTION_ID_PREFIX}{
-                        uuid5(
-                            UUID_NAMESPACE,
-                            f'{self.config.id}:{market_id}:{now.isoformat()}',
-                        )
-                    }",
+                    id=prediction_id,
                     market_id=market_id,
                     outcome_id=chosen_outcome_id,
                     llm_config_id=self.config.id,
                     captured_at=now,
                     tool_calls=result.tool_calls,
-                    raw_response=result.raw_response,
+                    raw_response_path=raw_response_path,
                     input_tokens=result.input_tokens,
                     output_tokens=result.output_tokens,
                     latency_ms=result.latency_ms,

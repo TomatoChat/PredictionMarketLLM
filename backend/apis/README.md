@@ -11,7 +11,7 @@ backend/apis/<slug>/
 ├── .dockerignore
 ├── deployment.yaml     # DeploymentConfig (snake_case keys; see deployer src/models/DeploymentConfig.py)
 ├── pyproject.toml      # service-only deps installed inside the image
-├── pyrightconfig.json  # IDE extra-paths so `from supabase import …` resolves locally
+├── pyrightconfig.json  # IDE extra-paths so `from db import …` resolves locally
 ├── main.py             # FastAPI app entry — creates `app`, includes the routers
 └── src/
     ├── routes/         # one route per file; each exports `router = APIRouter()`
@@ -42,12 +42,12 @@ Each service's [Dockerfile](polymarket/Dockerfile) `COPY`s the shared backend li
 ```dockerfile
 COPY backend/embedder  ./embedder   # OpenAI Embedder wrapper
 COPY backend/qdrant    ./qdrant     # Qdrant client + schema
-COPY backend/supabase  ./supabase   # SQLAlchemy ORM + queries
+COPY backend/db        ./db         # SQLAlchemy ORM + queries + Alembic
 COPY backend/tasks     ./tasks      # Cloud Tasks producer helpers
 COPY settings          ./settings   # pydantic-settings Settings()
 ```
 
-Inside the container the imports look "as if at the top level": `from supabase import LLMConfig`, `from qdrant import MARKETS`, `from tasks import enqueue`, `from settings import get_settings`. The same imports resolve in the IDE because each service has a [pyrightconfig.json](polymarket/pyrightconfig.json) with `extraPaths` pointing at `backend/` and the repo root.
+Inside the container the imports look "as if at the top level": `from db import LLMConfig`, `from qdrant import MARKETS`, `from tasks import enqueue`, `from settings import get_settings`. The same imports resolve in the IDE because each service has a [pyrightconfig.json](polymarket/pyrightconfig.json) with `extraPaths` pointing at `backend/` and the repo root.
 
 The service's own [pyproject.toml](polymarket/pyproject.toml) lists every third-party dep used directly OR transitively — including `sqlalchemy`, `qdrant-client`, `openai`, `google-cloud-tasks`, etc., when the service uses a shared lib that needs them.
 

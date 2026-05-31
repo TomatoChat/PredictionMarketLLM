@@ -1,4 +1,4 @@
-from supabase.consts import MARKET_ID_PREFIX
+from db.consts import MARKET_ID_PREFIX
 
 
 def to_point_id(market_id: str) -> str:

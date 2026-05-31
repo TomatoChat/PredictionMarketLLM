@@ -11,7 +11,7 @@ from ...models import (
     MarketPromptContext,
 )
 from .LLMProvider import LLMProvider
-from supabase import LLMConfig
+from db import LLMConfig
 from settings import get_settings
 
 

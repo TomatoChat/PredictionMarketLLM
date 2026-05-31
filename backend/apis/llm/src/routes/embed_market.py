@@ -13,7 +13,7 @@ from qdrant import (
 from settings import get_settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-from supabase.queries import get_market
+from db.queries import get_market
 
 from ..models import EmbedMarketResponse
 

@@ -17,7 +17,7 @@ class Settings(BaseSettings):
     DB_HOST: SecretStr = SecretStr("")
     DB_PORT: SecretStr = SecretStr("")
     DB_NAME: SecretStr = SecretStr("")
-    DB_SSLMODE: str = "require"
+    DB_SSLMODE: SecretStr = SecretStr("")
 
     OPENAI_API_KEY: SecretStr = SecretStr("")
 
@@ -26,6 +26,7 @@ class Settings(BaseSettings):
 
     GCP_PROJECT_ID: str | None = None
     GCP_REGION: str | None = None
+    GCS_RAW_BUCKET: str | None = None
     TASK_RUNNER_SA_EMAIL: str | None = None
     POLYMARKET_SERVICE_URL: str | None = None
     LLM_SERVICE_URL: str | None = None
@@ -38,7 +39,8 @@ class Settings(BaseSettings):
     @computed_field  # type: ignore[prop-decorator]
     @property
     def database_url(self) -> str:
-        return f"postgresql+psycopg://{self.DB_USER.get_secret_value()}:{self.DB_PASSWORD.get_secret_value()}@{self.DB_HOST.get_secret_value()}:{self.DB_PORT.get_secret_value()}/{self.DB_NAME.get_secret_value()}?sslmode={self.DB_SSLMODE}"  # noqa: E501
+        sslmode = self.DB_SSLMODE.get_secret_value() or "require"
+        return f"postgresql+psycopg://{self.DB_USER.get_secret_value()}:{self.DB_PASSWORD.get_secret_value()}@{self.DB_HOST.get_secret_value()}:{self.DB_PORT.get_secret_value()}/{self.DB_NAME.get_secret_value()}?sslmode={sslmode}"  # noqa: E501
 
     @override
     def model_post_init(self, context: Any) -> None:
@@ -51,6 +53,7 @@ class Settings(BaseSettings):
         self.fill_secret_gcp("DB_NAME")
         self.fill_secret_gcp("DB_USER")
         self.fill_secret_gcp("DB_PASSWORD")
+        self.fill_secret_gcp("DB_SSLMODE")
         self.fill_secret_gcp("OPENAI_API_KEY")
         self.fill_secret_gcp("QDRANT_API_KEY")
         self.fill_secret_gcp("QDRANT_ENDPOINT")
