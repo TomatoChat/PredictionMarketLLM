@@ -48,6 +48,15 @@ instance = gcp.sql.DatabaseInstance(
         disk_type="PD_SSD",
         disk_size=disk_size,
         disk_autoresize=True,
+        # IAM database authentication: allows GCP identities to auth alongside
+        # password auth (we still use password auth via DB_PASSWORD). Free for
+        # later use; preserves what GCP set during instance creation.
+        database_flags=[
+            gcp.sql.DatabaseInstanceSettingsDatabaseFlagArgs(
+                name="cloudsql.iam_authentication",
+                value="on",
+            ),
+        ],
         backup_configuration=gcp.sql.DatabaseInstanceSettingsBackupConfigurationArgs(
             enabled=True,
             point_in_time_recovery_enabled=False,
