@@ -11,6 +11,7 @@ COPY backend/shared_models ./shared_models
 COPY backend/embedder ./embedder
 COPY backend/qdrant ./qdrant
 COPY backend/supabase ./supabase
+COPY backend/raw_store ./raw_store
 COPY backend/observability ./observability
 COPY settings ./settings
 

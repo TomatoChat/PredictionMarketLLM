@@ -9,6 +9,7 @@ COPY backend/apis/polymarket/main.py ./
 COPY backend/apis/polymarket/src ./src
 COPY backend/shared_models ./shared_models
 COPY backend/supabase ./supabase
+COPY backend/raw_store ./raw_store
 COPY backend/tasks ./tasks
 COPY backend/observability ./observability
 COPY settings ./settings
