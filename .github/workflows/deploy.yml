@@ -233,7 +233,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v3
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v8
 
       - name: Install Cloud SQL Auth Proxy
         run: |
@@ -296,7 +296,7 @@ jobs:
         uses: google-github-actions/setup-gcloud@v3
 
       - name: Install uv
-        uses: astral-sh/setup-uv@v6
+        uses: astral-sh/setup-uv@v8
 
       - name: Install Cloud SQL Auth Proxy
         run: |
