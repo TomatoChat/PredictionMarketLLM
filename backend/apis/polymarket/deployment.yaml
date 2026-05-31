@@ -15,6 +15,7 @@ environment_variables:
   TASK_RUNNER_SA_EMAIL: task-runner@prediction-market-llm.iam.gserviceaccount.com
   POLYMARKET_SERVICE_URL: https://polymarket-855896249283.europe-west3.run.app
   LLM_SERVICE_URL: https://llm-855896249283.europe-west3.run.app
+  GCS_RAW_BUCKET: prediction-market-llm-raw
 
 startup_probe_path: /ready
 startup_probe_initial_delay: 0
