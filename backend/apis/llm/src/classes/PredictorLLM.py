@@ -50,8 +50,8 @@ class PredictorLLM:
         return [
             LLMConfig(
                 id=f"{LLM_CONFIG_ID_PREFIX}"
-                f"{uuid5(UUID_NAMESPACE, 'llm_config:gpt-5-low-websearch')}",
-                name="gpt-5-low-websearch",
+                f"{uuid5(UUID_NAMESPACE, 'llm_config:openai-gpt5nano-low-websearch')}",
+                name="openai-gpt5nano-low-websearch",
                 provider=LLMProviderEnum.OPENAI,
                 model=ModelSnapshot.GPT_5_NANO_2025_08_07.model,
                 model_snapshot=ModelSnapshot.GPT_5_NANO_2025_08_07,
