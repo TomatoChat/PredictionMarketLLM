@@ -9,7 +9,7 @@ from .PayloadIndex import PayloadIndex
 class CollectionSchema:
     """Declarative definition of a Qdrant collection — its name, vector geometry, and payload indexes.
 
-    Mirrors the role of ``backend.supabase.schema`` for SQLAlchemy ORM models:
+    Mirrors the role of ``backend.db.schema`` for SQLAlchemy ORM models:
     every Qdrant collection in the project is defined here, and helpers
     (``ensure_collection``, ``get_existing_point_ids``, upserts, …) accept a
     ``CollectionSchema`` so callers never hard-code collection names or vector
