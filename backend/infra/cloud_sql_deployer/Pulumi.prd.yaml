@@ -1,0 +1,8 @@
+config:
+  gcp:project: prediction-market-llm
+  gcp:region: europe-west3
+  cloud-sql-deployer:instanceName: prediction-market
+  cloud-sql-deployer:tier: db-perf-optimized-N-8
+  cloud-sql-deployer:edition: ENTERPRISE_PLUS
+  cloud-sql-deployer:diskSize: "100"
+encryptionsalt: v1:wuAajwYQM/c=:v1:wTUiDbZaGZJPuPqI:mOP4UZpoW+DoqfeVfxqjoQw2/h14CA==

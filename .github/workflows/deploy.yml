@@ -1,22 +1,27 @@
 name: Deploy
 
-# Single workflow that enforces the deploy ordering:
-#   cloud_run_deployer  →  queue_deployer ∥ cron_deployer
+# Workflow ordering:
+#   cloud_sql_deployer ─┬─► cloud_run_deployer ─┬─► queue_deployer
+#                       │                       └─► cron_deployer
+#                       └─► alembic_migrate ────► seed_llm_configs
 #
-# cloud_run_deployer must run first because:
+# cloud_sql_deployer must run first because:
+#   • cloud_run_deployer reads its `instance_connection_name` output via
+#     pulumi.StackReference to mount the Cloud SQL socket on each service.
+#   • alembic_migrate connects to the instance via Cloud SQL Auth Proxy.
+#
+# cloud_run_deployer must run before queue_deployer / cron_deployer because:
 #   • queue_deployer's `ServiceIamMember` bindings reference Cloud Run services
 #     created by cloud_run_deployer.
 #   • cron_deployer's `cloudrunv2.get_service_output(...)` looks up the
 #     orchestrator service URL, which cloud_run_deployer creates.
 #
-# queue_deployer and cron_deployer are independent of each other, so they fan
-# out and run in parallel once cloud_run_deployer succeeds.
+# alembic_migrate must run before seed_llm_configs because seed writes rows into
+# `llm_config`, which the migrate job creates.
 #
-# Qdrant is deployed separately (.github/workflows/deploy-qdrant.yml) — it lives
-# outside GCP, so it doesn't ride this workflow.
+# Qdrant is deployed separately (.github/workflows/deploy-qdrant.yml).
 #
-# Every `pulumi up` is idempotent — if nothing in a stack changed, that job is
-# a near-instant no-op.
+# Every `pulumi up` and `alembic upgrade head` is idempotent.
 
 on:
   push:
@@ -27,10 +32,11 @@ on:
       - "backend/queues/**"
       - "backend/embedder/**"
       - "backend/qdrant/**"
-      - "backend/supabase/**"
+      - "backend/db/**"
       - "backend/tasks/**"
       - "settings/**"
       - "backend/infra/cloud_run_deployer/**"
+      - "backend/infra/cloud_sql_deployer/**"
       - "backend/infra/cron_deployer/**"
       - "backend/infra/queue_deployer/**"
       - ".github/workflows/deploy.yml"
@@ -41,8 +47,49 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  cloud_sql_deployer:
+    name: Deploy Cloud SQL instance
+    runs-on: ubuntu-latest
+    environment: prd
+    permissions:
+      contents: read
+      id-token: write
+    env:
+      PULUMI_BACKEND_URL: gs://prediction-market-llm-pulumi-state
+      PULUMI_CONFIG_PASSPHRASE: ${{ secrets.PULUMI_CONFIG_PASSPHRASE }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS_JSON }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Install deployer dependencies
+        working-directory: backend/infra/cloud_sql_deployer
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install --upgrade pip
+          .venv/bin/pip install -r requirements.txt
+
+      - name: Install Pulumi CLI
+        uses: pulumi/actions@v7
+
+      - name: Pulumi up
+        working-directory: backend/infra/cloud_sql_deployer
+        run: pulumi up --yes --refresh --stack prd
+
   cloud_run_deployer:
     name: Deploy Cloud Run services
+    needs: cloud_sql_deployer
     runs-on: ubuntu-latest
     environment: prd
     permissions:
@@ -165,3 +212,125 @@ jobs:
       - name: Pulumi up
         working-directory: backend/infra/cron_deployer
         run: pulumi up --yes --refresh --stack prd
+
+  alembic_migrate:
+    name: Run Alembic migrations
+    needs: cloud_sql_deployer
+    runs-on: ubuntu-latest
+    environment: prd
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS_JSON }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install Cloud SQL Auth Proxy
+        run: |
+          curl -fSL -o cloud-sql-proxy \
+            https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.14.0/cloud-sql-proxy.linux.amd64
+          chmod +x cloud-sql-proxy
+
+      - name: Start Cloud SQL Auth Proxy
+        run: |
+          INSTANCE="$(gcloud secrets versions access latest --secret=DB_HOST | sed 's|^/cloudsql/||')"
+          echo "Proxying $INSTANCE on 127.0.0.1:5432"
+          nohup ./cloud-sql-proxy "$INSTANCE" --address 127.0.0.1 --port 5432 \
+            > proxy.log 2>&1 &
+          # wait until the proxy is accepting connections
+          for i in $(seq 1 30); do
+            if nc -z 127.0.0.1 5432; then
+              echo "proxy ready"; exit 0
+            fi
+            sleep 1
+          done
+          echo "proxy never came up"; cat proxy.log; exit 1
+
+      - name: Sync llm service deps (provides alembic)
+        working-directory: backend/apis/llm
+        run: uv sync
+
+      # alembic_version table tracks applied revisions. Idempotent — re-running
+      # is a near-instant no-op once the DB is at head. On first run after the
+      # data import, the operator should `alembic stamp 0001_baseline` (see
+      # backend/infra/cloud_sql_deployer/README.md) so this job becomes a no-op.
+      - name: Run migrations
+        working-directory: backend/apis/llm
+        run: |
+          export DB_HOST=127.0.0.1
+          export DB_PORT=5432
+          export DB_SSLMODE=disable
+          export DB_NAME="$(gcloud secrets versions access latest --secret=DB_NAME)"
+          export DB_USER="$(gcloud secrets versions access latest --secret=DB_USER)"
+          export DB_PASSWORD="$(gcloud secrets versions access latest --secret=DB_PASSWORD)"
+          PYTHONPATH=../../..:../../../backend \
+            uv run alembic -c ../../db/alembic.ini upgrade head
+
+  seed_llm_configs:
+    name: Seed LLM configs
+    needs: [cloud_run_deployer, alembic_migrate]
+    runs-on: ubuntu-latest
+    environment: prd
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          credentials_json: ${{ secrets.GCP_CREDENTIALS_JSON }}
+
+      - name: Set up gcloud
+        uses: google-github-actions/setup-gcloud@v3
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+
+      - name: Install Cloud SQL Auth Proxy
+        run: |
+          curl -fSL -o cloud-sql-proxy \
+            https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.14.0/cloud-sql-proxy.linux.amd64
+          chmod +x cloud-sql-proxy
+
+      - name: Start Cloud SQL Auth Proxy
+        run: |
+          INSTANCE="$(gcloud secrets versions access latest --secret=DB_HOST | sed 's|^/cloudsql/||')"
+          nohup ./cloud-sql-proxy "$INSTANCE" --address 127.0.0.1 --port 5432 \
+            > proxy.log 2>&1 &
+          for i in $(seq 1 30); do
+            if nc -z 127.0.0.1 5432; then
+              echo "proxy ready"; exit 0
+            fi
+            sleep 1
+          done
+          echo "proxy never came up"; cat proxy.log; exit 1
+
+      - name: Sync llm service deps
+        working-directory: backend/apis/llm
+        run: uv sync
+
+      # Reconcile the DB against PredictorLLM.canonical_configs(): upsert every
+      # canonical config + deactivate any other row. Runs on every deploy, so
+      # adding/removing a config in code automatically syncs prod.
+      - name: Seed canonical configs
+        working-directory: backend/apis/llm
+        run: |
+          export DB_HOST=127.0.0.1
+          export DB_PORT=5432
+          export DB_SSLMODE=disable
+          export DB_NAME="$(gcloud secrets versions access latest --secret=DB_NAME)"
+          export DB_USER="$(gcloud secrets versions access latest --secret=DB_USER)"
+          export DB_PASSWORD="$(gcloud secrets versions access latest --secret=DB_PASSWORD)"
+          PYTHONPATH=../../..:../../../backend uv run python -c "from src.classes.PredictorLLM import PredictorLLM; assert PredictorLLM.seed_canonical_configs(), 'seed failed'"

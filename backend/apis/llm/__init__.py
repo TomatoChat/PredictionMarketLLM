@@ -3,7 +3,7 @@
 The api service container imports `from src.X import Y` directly; this file
 exists so that **inside the repo** (e.g. crons or tests) we can write
 `from backend.apis.llm.<X>` against the api package. It also inserts
-`backend/` into sys.path so the api code's `from supabase import …` /
+`backend/` into sys.path so the api code's `from db import …` /
 `from qdrant import …` / `from embedder import …` references resolve when
 imported locally.
 """

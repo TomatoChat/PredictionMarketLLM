@@ -4,7 +4,7 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 
-from supabase import LLMConfig
+from db import LLMConfig
 
 from ...models import LLMPredictionResult, MarketPromptContext
 

@@ -7,7 +7,8 @@ class Market(BaseModel):
     """One market from Polymarket's CLOB ``/markets`` response.
 
     Only the fields the scraper consumes are declared; ``extra="allow"`` keeps
-    the rest of the payload around (it is persisted wholesale into ``market.raw``).
+    the rest of the payload around (the full payload is uploaded to GCS and
+    referenced by ``market.raw_path``).
     """
 
     model_config = ConfigDict(extra="allow")

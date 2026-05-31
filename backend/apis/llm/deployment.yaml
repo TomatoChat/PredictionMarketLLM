@@ -11,7 +11,10 @@ concurrency: 8
 # (single source of truth: backend/tasks/QUEUE_DISPATCH_DEADLINES.py)
 timeout: 180
 
-environment_variables: {}
+needs_cloudsql: true
+
+environment_variables:
+  GCS_RAW_BUCKET: prediction-market-llm-raw
 
 startup_probe_path: /ready
 startup_probe_initial_delay: 0

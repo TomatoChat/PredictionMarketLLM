@@ -2,7 +2,7 @@
 
 Container code imports `from src.X import Y` directly; this file exists so
 that **inside the repo** we can write `from backend.apis.polymarket.<X>` and
-have the moved code's `from supabase import …` / `from qdrant import …` /
+have the moved code's `from db import …` / `from qdrant import …` /
 `from tasks import …` references resolve when imported locally. It inserts
 `backend/` into sys.path on first import.
 """
