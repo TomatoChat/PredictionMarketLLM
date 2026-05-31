@@ -55,6 +55,42 @@ ar_repo = gcp.artifactregistry.Repository(
 
 image_repo = f"{region}-docker.pkg.dev/{project_id}/{ar_repo_id}"
 
+# Bucket for offloaded raw payloads (market.raw_path, llm_prediction.raw_response_path).
+# Kept out of Postgres to save DB storage + egress; written by the polymarket and
+# llm services, which run as the default compute SA.
+raw_bucket_name = config.get("rawBucketName") or f"{project_id}-raw"
+raw_bucket = gcp.storage.Bucket(
+    "raw-payloads-bucket",
+    name=raw_bucket_name,
+    project=project_id,
+    location=region,
+    uniform_bucket_level_access=True,
+)
+runtime_sa_email = f"{project_id_number}-compute@developer.gserviceaccount.com"
+gcp.storage.BucketIAMMember(
+    "raw-payloads-bucket-writer",
+    bucket=raw_bucket.name,
+    role="roles/storage.objectAdmin",
+    member=f"serviceAccount:{runtime_sa_email}",
+)
+pulumi.export("raw_bucket_name", raw_bucket.name)
+
+# Cloud SQL instance is provisioned by the separate cloud_sql_deployer stack.
+# Pull its connection name so we can mount it as a Unix socket on each service
+# that opts in via `needs_cloudsql: true` in deployment.yaml.
+cloud_sql_stack = pulumi.StackReference(
+    config.get("cloudSqlStackRef") or f"organization/cloud-sql-deployer/{pulumi.get_stack()}"
+)
+cloud_sql_connection_name = cloud_sql_stack.get_output("instance_connection_name")
+
+# Cloud Run needs roles/cloudsql.client on the runtime SA to open the socket.
+gcp.projects.IAMMember(
+    "runtime-sa-cloudsql-client",
+    project=project_id,
+    role="roles/cloudsql.client",
+    member=f"serviceAccount:{runtime_sa_email}",
+)
+
 for service_dir in service_dirs:
     deploy_service(
         service_dir=service_dir,
@@ -63,5 +99,6 @@ for service_dir in service_dirs:
         region=region,
         image_repo=image_repo,
         build_context=build_context,
+        cloud_sql_instance_connection_name=cloud_sql_connection_name,
         depends_on=[ar_repo],
     )

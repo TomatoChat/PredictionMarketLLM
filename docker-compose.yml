@@ -1,0 +1,37 @@
+# Local Postgres for development — mirrors the Cloud SQL instance used in prod
+# so `alembic upgrade head` produces the same schema locally.
+#
+# Usage:
+#   docker compose up postgres -d
+#   cd backend/apis/llm && uv sync \
+#     && uv run alembic -c ../../db/alembic.ini upgrade head
+#
+# Match the credentials in your repo-root .env:
+#   DB_USER=postgres
+#   DB_PASSWORD=postgres
+#   DB_HOST=127.0.0.1
+#   DB_PORT=5432
+#   DB_NAME=postgres
+#   DB_SSLMODE=disable
+
+services:
+  postgres:
+    image: postgres:18
+    container_name: prediction-market-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data:

@@ -22,7 +22,7 @@ def sync_collections(
       (``"synced"``).
 
     Returns ``{collection_name: action}``. Intended as the single deploy-time
-    entry point (analogous to the Supabase migrations / ``seed_canonical_configs``)
+    entry point (analogous to ``alembic upgrade head`` / ``seed_canonical_configs``)
     rather than being called lazily per request.
     """
     results: dict[str, str] = {}

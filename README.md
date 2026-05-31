@@ -28,7 +28,7 @@ daily cron ──▶ orchestrator /prepare-scraping
                                                      │
                                                      ▼
                                             polymarket /scrape (one page)
-                                                ├─ upsert markets to Supabase
+                                                ├─ upsert markets to Postgres
                                                 ├─ enqueue next page  ──▶ scrape-markets-polymarket
                                                 ├─ per new market     ──▶ save-embeddings-markets queue ──▶ llm /embed-market
                                                 └─ per (market × cfg) ──▶ solve-market-llm queue       ──▶ llm /predict
@@ -39,16 +39,17 @@ daily cron ──▶ orchestrator /prepare-scraping
 | Service | Purpose |
 | --- | --- |
 | [`orchestrator`](backend/apis/orchestrator/) | `POST /prepare-scraping` — cron entry point. Enqueues the bootstrap scrape task. |
-| [`polymarket`](backend/apis/polymarket/) | `POST /scrape` — handles one Polymarket CLOB page (one cursor), upserts **all** markets to Supabase (closed ones populate `outcome.market_winner`), enriches the tradeable subset with gamma-api volume/liquidity, then fans out embed + predict tasks for tradeable markets. |
+| [`polymarket`](backend/apis/polymarket/) | `POST /scrape` — handles one Polymarket CLOB page (one cursor), upserts **all** markets to Postgres (closed ones populate `outcome.market_winner`), enriches the tradeable subset with gamma-api volume/liquidity, then fans out embed + predict tasks for tradeable markets. |
 | [`llm`](backend/apis/llm/) | `POST /predict` (one PredictorLLM cycle) + `POST /embed-market` (one market embedding into Qdrant). |
 
 ### Infrastructure ([backend/infra/](backend/infra/))
 
-Four Pulumi stacks, deployed by [.github/workflows/deploy.yml](.github/workflows/deploy.yml). `cloud_run_deployer` runs first; `queue_deployer` + `cron_deployer` depend on it; `qdrant_deployer` is independent (Qdrant Cloud, not GCP) and runs in parallel.
+Five Pulumi stacks, deployed by [.github/workflows/deploy.yml](.github/workflows/deploy.yml). `cloud_sql_deployer` runs first; `cloud_run_deployer` depends on it (mounts the Cloud SQL socket); `queue_deployer` + `cron_deployer` depend on `cloud_run_deployer`; `qdrant_deployer` is independent (Qdrant Cloud, not GCP) and runs in parallel via its own workflow.
 
 | Stack | Manages |
 | --- | --- |
-| [`cloud_run_deployer`](backend/infra/cloud_run_deployer/) | Artifact Registry repo + the three Cloud Run services. |
+| [`cloud_sql_deployer`](backend/infra/cloud_sql_deployer/) | The Cloud SQL Postgres instance. (App data lives in the default `postgres` DB; the admin password is set in the GCP UI and stored in GSM.) |
+| [`cloud_run_deployer`](backend/infra/cloud_run_deployer/) | Artifact Registry repo + the three Cloud Run services. Reads `instance_connection_name` from `cloud_sql_deployer` via `StackReference` and mounts the Cloud SQL Unix socket on services flagged `needs_cloudsql: true`. |
 | [`queue_deployer`](backend/infra/queue_deployer/) | The shared `task-runner` SA + Cloud Tasks queues declared in [backend/queues/](backend/queues/) + IAM bindings. |
 | [`cron_deployer`](backend/infra/cron_deployer/) | Cloud Scheduler jobs declared in [backend/crons/](backend/crons/). |
 | [`qdrant_deployer`](backend/infra/qdrant_deployer/) | The Qdrant Cloud **cluster** (control plane). Collections are *not* managed here — they live in [backend/qdrant/schema.py](backend/qdrant/schema.py) and are reconciled by the `qdrant_sync` deploy job (`python -m qdrant.sync`). |
@@ -61,7 +62,7 @@ Each service's Dockerfile `COPY`s the libs it needs:
 
 | Lib | Used by |
 | --- | --- |
-| [`backend/supabase/`](backend/supabase/) | polymarket, llm — SQLAlchemy schema + queries |
+| [`backend/db/`](backend/db/) | polymarket, llm — SQLAlchemy schema + queries + Alembic migrations |
 | [`backend/qdrant/`](backend/qdrant/) | llm — Qdrant client, collection schema + `sync_collections` |
 | [`backend/embedder/`](backend/embedder/) | llm — OpenAI embeddings wrapper |
 | [`backend/tasks/`](backend/tasks/) | orchestrator, polymarket — Cloud Tasks `enqueue()` + `QUEUE_DISPATCH_DEADLINES` |

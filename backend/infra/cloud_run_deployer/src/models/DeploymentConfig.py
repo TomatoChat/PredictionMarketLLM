@@ -30,6 +30,8 @@ class DeploymentConfig(BaseModel):
 
     environment_variables: dict[str, str] = {}
 
+    needs_cloudsql: bool = False
+
     startup_probe_path: str
     startup_probe_initial_delay: int
     startup_probe_timeout: int
