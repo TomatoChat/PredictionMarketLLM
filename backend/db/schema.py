@@ -101,10 +101,9 @@ class Market(Base):
         nullable=False,
         comment="Current status: whether the market is archived (hidden from default listings) at last scrape.",
     )
-    raw: Mapped[dict] = mapped_column(
-        JSONB,
-        nullable=False,
-        comment="Full raw payload from the source API, kept as an escape hatch for fields not yet normalized.",
+    raw_path: Mapped[str | None] = mapped_column(
+        Text,
+        comment="gs:// path to the gzip'd full source payload in the raw bucket; kept out of Postgres to save storage/egress. Null if the upload failed.",
     )
     first_seen_at: Mapped[datetime] = mapped_column(
         TIMESTAMP(timezone=True),
@@ -323,10 +322,9 @@ class LLMPrediction(Base):
         JSONB,
         comment="Tool invocations made during the run (tool name, arguments, results).",
     )
-    raw_response: Mapped[dict] = mapped_column(
-        JSONB,
-        nullable=False,
-        comment="Full raw provider response, kept as an escape hatch for fields not yet normalized.",
+    raw_response_path: Mapped[str | None] = mapped_column(
+        Text,
+        comment="gs:// path to the gzip'd full provider response in the raw bucket; kept out of Postgres to save storage/egress. Null if the upload failed.",
     )
     input_tokens: Mapped[int | None] = mapped_column(
         Integer, comment="Input/prompt token count reported by the provider."

@@ -2,9 +2,9 @@ from .deactivate_llm_configs_except import (
     DeactivateLLMConfigsExceptResponse,
     deactivate_llm_configs_except,
 )
-from .get_active_llm_config_names import (
-    GetActiveLLMConfigNamesResponse,
-    get_active_llm_config_names,
+from .get_active_llm_configs import (
+    GetActiveLLMConfigsResponse,
+    get_active_llm_configs,
 )
 from .get_active_market_ids import (
     GetActiveMarketIdsResponse,
@@ -17,6 +17,10 @@ from .get_llm_config_by_name import (
 from .get_latest_outcome_price import (
     GetLatestOutcomePriceResponse,
     get_latest_outcome_price,
+)
+from .get_existing_market_ids import (
+    GetExistingMarketIdsResponse,
+    get_existing_market_ids,
 )
 from .get_market import GetMarketResponse, get_market
 from .get_market_outcomes import (
@@ -46,8 +50,9 @@ from .upsert_outcomes import (
 
 __all__ = [
     "DeactivateLLMConfigsExceptResponse",
-    "GetActiveLLMConfigNamesResponse",
+    "GetActiveLLMConfigsResponse",
     "GetActiveMarketIdsResponse",
+    "GetExistingMarketIdsResponse",
     "GetLLMConfigByNameResponse",
     "GetLatestOutcomePriceResponse",
     "GetMarketResponse",
@@ -58,8 +63,9 @@ __all__ = [
     "UpsertMarketsResponse",
     "UpsertOutcomesResponse",
     "deactivate_llm_configs_except",
-    "get_active_llm_config_names",
+    "get_active_llm_configs",
     "get_active_market_ids",
+    "get_existing_market_ids",
     "get_latest_outcome_price",
     "get_llm_config_by_name",
     "get_market",
