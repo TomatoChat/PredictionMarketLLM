@@ -33,6 +33,7 @@ exclude = [
     "backend/tasks",
     "backend/qdrant",
     "backend/observability",
+    "backend/db/alembic",
 ]
 
 [tool.ruff]
