@@ -8,6 +8,8 @@ def build_container(
     image_ref: pulumi.Input[str],
     deployment_config: DeploymentConfig,
     port: int,
+    volume_mounts: list[gcp.cloudrunv2.ServiceTemplateContainerVolumeMountArgs]
+    | None = None,
 ) -> gcp.cloudrunv2.ServiceTemplateContainerArgs:
     env_vars = [
         gcp.cloudrunv2.ServiceTemplateContainerEnvArgs(name=k, value=v)
@@ -23,6 +25,7 @@ def build_container(
         image=image_ref,
         ports=gcp.cloudrunv2.ServiceTemplateContainerPortsArgs(container_port=port),
         envs=env_vars,
+        volume_mounts=volume_mounts,
         resources=gcp.cloudrunv2.ServiceTemplateContainerResourcesArgs(
             limits={
                 "memory": f"{deployment_config.memory}Mi",
