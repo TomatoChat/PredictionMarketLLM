@@ -1,10 +1,10 @@
-"""baseline — schema as of the Supabase→Cloud SQL cutover.
+"""baseline — initial schema.
 
 Creates the full schema (5 tables + 2 enums) in one shot, matching
-`backend/db/schema.py`. On a fresh DB this is the entrypoint; on the existing
-production DB (which already has these tables from the original `supabase db
-push` runs) the operator runs `alembic stamp 0001_baseline` once after data
-import so this revision is recorded as applied without re-running.
+`backend/db/schema.py`. On a fresh DB this is the entrypoint; on an existing
+DB that already has these tables (e.g. carried over from a previous storage
+backend), run `alembic stamp 0001_baseline` once so this revision is recorded
+as applied without re-running.
 
 Revision ID: 0001_baseline
 Revises:
