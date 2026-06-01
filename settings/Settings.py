@@ -5,6 +5,7 @@ from typing import Any, override
 
 from pydantic import SecretStr, computed_field
 from pydantic_settings import BaseSettings, SettingsConfigDict
+from sqlalchemy import URL
 
 from settings.helpers import get_secret
 
@@ -39,8 +40,29 @@ class Settings(BaseSettings):
     @computed_field  # type: ignore[prop-decorator]
     @property
     def database_url(self) -> str:
+        host = self.DB_HOST.get_secret_value()
         sslmode = self.DB_SSLMODE.get_secret_value() or "require"
-        return f"postgresql+psycopg://{self.DB_USER.get_secret_value()}:{self.DB_PASSWORD.get_secret_value()}@{self.DB_HOST.get_secret_value()}:{self.DB_PORT.get_secret_value()}/{self.DB_NAME.get_secret_value()}?sslmode={sslmode}"  # noqa: E501
+
+        if host.startswith("/"):
+            url = URL.create(
+                drivername="postgresql+psycopg",
+                username=self.DB_USER.get_secret_value(),
+                password=self.DB_PASSWORD.get_secret_value(),
+                database=self.DB_NAME.get_secret_value(),
+                query={"host": host, "sslmode": sslmode},
+            )
+        else:
+            url = URL.create(
+                drivername="postgresql+psycopg",
+                username=self.DB_USER.get_secret_value(),
+                password=self.DB_PASSWORD.get_secret_value(),
+                host=host,
+                port=int(self.DB_PORT.get_secret_value()),
+                database=self.DB_NAME.get_secret_value(),
+                query={"sslmode": sslmode},
+            )
+
+        return url.render_as_string(hide_password=False)
 
     @override
     def model_post_init(self, context: Any) -> None:
