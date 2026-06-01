@@ -17,8 +17,8 @@ Python 3.14, [uv](https://docs.astral.sh/uv/), SQLAlchemy 2 ORM, Cloud SQL Postg
 ## Setup
 
 ```bash
-uv sync                                                            # repo-level deps + pre-commit
-uv run pre-commit install
+uv sync                                                            # repo-level deps + prek
+uv run prek install
 
 docker compose up postgres -d                                      # local Postgres (mirrors Cloud SQL)
 
