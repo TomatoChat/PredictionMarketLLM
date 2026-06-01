@@ -8,7 +8,7 @@ See [README.md](README.md) for the full setup. Quick version:
 
 ```bash
 uv sync
-uv run pre-commit install
+uv run prek install
 docker compose up postgres -d
 cd backend/apis/llm && uv sync && uv run alembic -c ../../db/alembic.ini upgrade head
 ```
