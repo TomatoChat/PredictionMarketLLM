@@ -1,4 +1,8 @@
-.PHONY: lint typecheck format check
+.PHONY: install lint typecheck format check
+
+install:
+	uv sync
+	uv run prek install
 
 lint:
 	uv run ruff check --fix --show-fixes
