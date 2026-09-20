@@ -7,13 +7,13 @@ from .helpers import (
     to_point_id,
     upsert_market_embeddings,
 )
-from .schema import COLLECTIONS, MARKETS
 from .models import (
     CollectionSchema,
     MarketEmbeddingPoint,
     PayloadIndex,
     UpsertMarketEmbeddingsResponse,
 )
+from .schema import COLLECTIONS, MARKETS
 
 __all__ = [
     "COLLECTIONS",

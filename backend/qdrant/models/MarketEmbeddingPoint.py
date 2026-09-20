@@ -1,6 +1,5 @@
-from pydantic import BaseModel, ConfigDict
-
 from db import Source
+from pydantic import BaseModel, ConfigDict
 
 
 class MarketEmbeddingPoint(BaseModel):

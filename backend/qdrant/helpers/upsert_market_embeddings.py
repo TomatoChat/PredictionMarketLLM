@@ -1,8 +1,8 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import PointStruct
 
-from ..schema import MARKETS
 from ..models import MarketEmbeddingPoint, UpsertMarketEmbeddingsResponse
+from ..schema import MARKETS
 
 
 def upsert_market_embeddings(

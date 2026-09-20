@@ -1,6 +1,7 @@
 from functools import lru_cache
 
 from qdrant_client import QdrantClient
+
 from settings import get_settings
 
 

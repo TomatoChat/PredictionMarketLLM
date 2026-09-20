@@ -60,7 +60,9 @@ def _parse_end_date(raw: str | None) -> datetime | None:
         return None
 
 
-def scrape_polymarket_page(cursor: str) -> tuple[bool, str | None, list[str]]:
+def scrape_polymarket_page(
+    cursor: str,
+) -> tuple[bool, str | None, list[str], list[str]]:
     """Fetch ONE CLOB page at ``cursor`` and upsert it to Postgres.
 
     Returns ``(ok, next_cursor, new_market_ids, active_market_ids)``:
