@@ -61,17 +61,7 @@ jobs:
         run: |
           export QDRANT_ENDPOINT="$(gcloud secrets versions access latest --secret=QDRANT_ENDPOINT)"
           export QDRANT_API_KEY="$(gcloud secrets versions access latest --secret=QDRANT_API_KEY)"
-          for attempt in $(seq 1 12); do
-            if PYTHONPATH=backend python -m qdrant.sync; then
-              exit 0
-            fi
-            if [ "$attempt" -eq 12 ]; then
-              echo "Qdrant collection sync failed after $attempt attempts"
-              exit 1
-            fi
-            echo "Qdrant is not ready; retrying in 15 seconds (attempt $attempt/12)"
-            sleep 15
-          done
+          PYTHONPATH=backend python -m qdrant.sync
 
   qdrant_deployer:
     name: Deploy Qdrant Cloud cluster
