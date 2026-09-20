@@ -27,7 +27,7 @@ uv sync
 uv run alembic -c ../../db/alembic.ini upgrade head                # create the schema locally
 ```
 
-Drop a `.env` at the repo root with the DB / OpenAI / Qdrant creds (see [CLAUDE.md](CLAUDE.md) for the full list).
+Drop a `.env` at the repo root with the DB / OpenAI / Qdrant creds (see [AGENTS.md](AGENTS.md) for the full list).
 
 ## Architecture
 
@@ -100,4 +100,4 @@ make format
 make typecheck
 ```
 
-See [CLAUDE.md](CLAUDE.md) for the agent-facing project guide with conventions, gotchas, and local dev recipes.
+See [AGENTS.md](AGENTS.md) for the agent-facing project guide with conventions, gotchas, and local dev recipes.

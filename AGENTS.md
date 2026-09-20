@@ -141,4 +141,6 @@ CI workflows: [.github/workflows/lint.yml](.github/workflows/lint.yml), [.github
 
 ## Available skills
 
-- `.claude/skills/add-model-config/` — use when adding a new LLM config (model × params × tools combo) to the canonical list.
+Skills live under `.agents/skills/` (the source of truth); `.claude/skills` is a symlink to it. Claude Code and Codex both read this file (`AGENTS.md`) directly — there is no `CLAUDE.md`. Add new skills under `.agents/skills/<slug>/SKILL.md`; nothing needs symlinking per skill.
+
+- `.agents/skills/add-model-config/` — use when adding a new LLM config (model × params × tools combo) to the canonical list.
