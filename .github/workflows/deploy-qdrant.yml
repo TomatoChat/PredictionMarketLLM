@@ -5,10 +5,9 @@ name: Deploy Qdrant
 #   • qdrant_sync     — reconcile collections (data plane) from backend/qdrant/schema.py
 #   • qdrant_deployer — manage the Qdrant Cloud cluster (control plane) via Pulumi
 #
-# They have no `needs` between them: the cluster already exists, so collection
-# sync must not be blocked by the cluster stack (which stays inert until the
-# existing cluster is imported and QDRANT_CLOUD_API_KEY is set — see
-# backend/infra/qdrant_deployer/README.md).
+# Collection sync runs after the cluster deployment. This avoids a race where
+# Pulumi is reconciling the cluster while the data-plane sync tries to connect
+# to the Qdrant endpoint.
 
 on:
   push:
@@ -27,6 +26,7 @@ concurrency:
 jobs:
   qdrant_sync:
     name: Sync Qdrant collections
+    needs: qdrant_deployer
     runs-on: ubuntu-latest
     environment: prd
     permissions:
