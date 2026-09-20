@@ -2,7 +2,7 @@ service_slug: orchestrator
 service_name: orchestrator
 is_public: false
 
-memory: 128
+memory: 256
 cpu: 0.5
 min_instances: 0
 max_instances: 1
