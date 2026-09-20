@@ -13,7 +13,7 @@ docker compose up postgres -d
 cd backend/apis/llm && uv sync && uv run alembic -c ../../db/alembic.ini upgrade head
 ```
 
-Drop a `.env` at the repo root with DB / OpenAI / Qdrant creds. The full variable list is in [CLAUDE.md](CLAUDE.md#local-dev).
+Drop a `.env` at the repo root with DB / OpenAI / Qdrant creds. The full variable list is in [AGENTS.md](AGENTS.md#local-dev).
 
 ## Conventions
 
@@ -25,7 +25,7 @@ These are enforced by review, not tooling — please follow them.
 - **No mypy.** [`ty`](https://github.com/astral-sh/ty) is the only type checker.
 - **No comments unless the *why* is non-obvious.** Well-named identifiers explain the *what*.
 
-See [CLAUDE.md](CLAUDE.md) for the deeper architecture guide, gotchas, and the rationale behind these conventions.
+See [AGENTS.md](AGENTS.md) for the deeper architecture guide, gotchas, and the rationale behind these conventions.
 
 ## Making a change
 
@@ -36,7 +36,7 @@ See [CLAUDE.md](CLAUDE.md) for the deeper architecture guide, gotchas, and the r
    uv run alembic -c ../../db/alembic.ini revision --autogenerate -m "describe the change"
    ```
    Review the generated revision under [`backend/db/alembic/versions/`](backend/db/alembic/) — autogen misses renames, enum value adds, and expression indexes. Commit the revision alongside the schema change.
-3. **Adding an LLM config?** Edit `PredictorLLM.canonical_configs()` and push — the `seed_llm_configs` job reconciles on every deploy. See the [`add-model-config`](.claude/skills/add-model-config/) skill for the recipe.
+3. **Adding an LLM config?** Edit `PredictorLLM.canonical_configs()` and push — the `seed_llm_configs` job reconciles on every deploy. See the [`add-model-config`](.agents/skills/add-model-config/) skill for the recipe.
 4. **Run the checks.**
    ```bash
    make check        # ruff lint+format + ty typecheck
