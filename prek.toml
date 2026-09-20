@@ -1,4 +1,6 @@
-exclude = '^CLAUDE\.md$'
+# AGENTS.md is the agent guide (was CLAUDE.md). CLAUDE.md and .claude/skills are
+# symlinks into it / .agents/skills — never let a file-fixing hook rewrite them.
+exclude = '^(AGENTS\.md|CLAUDE\.md|\.claude/skills)$'
 
 [[repos]]
 repo = "builtin"
