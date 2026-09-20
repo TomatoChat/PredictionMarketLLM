@@ -21,8 +21,9 @@ for p in (_repo_root, _backend):
     if str(p) not in sys.path:
         sys.path.insert(0, str(p))
 
-from db.schema import Base  # noqa: E402
-from settings.Settings import Settings  # noqa: E402
+from db.schema import Base
+
+from settings.Settings import Settings
 
 config = context.config
 if config.config_file_name is not None:

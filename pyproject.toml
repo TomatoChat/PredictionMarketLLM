@@ -41,3 +41,7 @@ exclude = [
     "backend/infra",
     "backend/apis",
 ]
+
+[tool.ruff.lint]
+ignore = ["N999"]
+per-file-ignores = {"backend/db/alembic/env.py" = ["E402"]}

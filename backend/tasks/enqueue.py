@@ -10,6 +10,7 @@ from google.cloud import tasks_v2
 from google.protobuf import duration_pb2
 from observability import inject_trace_headers
 from pydantic import BaseModel
+
 from settings import get_settings
 
 from .get_client import get_client

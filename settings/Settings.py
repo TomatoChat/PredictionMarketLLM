@@ -40,7 +40,7 @@ class Settings(BaseSettings):
     @property
     def database_url(self) -> str:
         sslmode = self.DB_SSLMODE.get_secret_value() or "require"
-        return f"postgresql+psycopg://{self.DB_USER.get_secret_value()}:{self.DB_PASSWORD.get_secret_value()}@{self.DB_HOST.get_secret_value()}:{self.DB_PORT.get_secret_value()}/{self.DB_NAME.get_secret_value()}?sslmode={sslmode}"  # noqa: E501
+        return f"postgresql+psycopg://{self.DB_USER.get_secret_value()}:{self.DB_PASSWORD.get_secret_value()}@{self.DB_HOST.get_secret_value()}:{self.DB_PORT.get_secret_value()}/{self.DB_NAME.get_secret_value()}?sslmode={sslmode}"
 
     @override
     def model_post_init(self, context: Any) -> None:
